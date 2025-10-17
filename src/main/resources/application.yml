@@ -1,0 +1,41 @@
+spring:
+  profiles:
+    # --spring.profiles.active=prod или --spring.profiles.active=docker
+    active: dev
+    
+  application:
+    name: HousingUtilitiesSystemAdmin
+
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+file:
+  upload:
+    dir: "${user.dir}/uploads"
+  temp:
+    dir: "${user.dir}/temp-uploads"
+
+jwt:
+  secret: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855
+  expiration: 86400000 # 24 часа
+
+# Профили:
+# - dev: Локальная разработка (application-dev.yml)
+# - prod: Продакшен (application-prod.yml)  
+# - docker: Docker окружение (application-docker.yml)

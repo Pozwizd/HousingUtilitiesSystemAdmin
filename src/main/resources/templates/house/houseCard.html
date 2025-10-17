@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{template/layout.html}">
+
+<head>
+    <title>Профиль дома</title>
+    <th:block layout:fragment="page_css">
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header with actions -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                    <button type="button" class="btn btn-label-secondary me-3" onclick="window.history.back()">
+                        <i class="ti ti-arrow-left me-1"></i> Назад
+                    </button>
+                    <h4 class="mb-0">Профиль дома</h4>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" id="editHouseBtn" class="btn btn-primary">
+                        <i class="ti ti-edit me-1"></i> Редактировать
+                    </button>
+                    <button type="button" id="deleteHouseBtn" class="btn btn-danger">
+                        <i class="ti ti-trash me-1"></i> Удалить
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- House Info Card -->
+                <div class="col-xl-4 col-lg-5 col-md-5">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="user-avatar-section">
+                                <div class="d-flex align-items-center flex-column">
+                                    <div class="user-info text-center">
+                                        <h4 class="mb-2" id="houseNumber">Загрузка...</h4>
+                                        <span class="badge" id="houseStatus">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-around flex-wrap mt-4 pt-3 pb-4 border-bottom">
+                                <div class="d-flex align-items-start me-4 mt-3 gap-2">
+                                    <span class="badge bg-label-primary p-2 rounded">
+                                        <i class="ti ti-map-pin ti-sm"></i>
+                                    </span>
+                                    <div>
+                                        <p class="mb-0 fw-medium">Адрес</p>
+                                        <small id="houseAddress">-</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mt-4 small text-uppercase text-muted">Информация о председателе</p>
+                            <div class="info-container">
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-2 pt-1">
+                                        <span class="fw-medium me-1">Председатель:</span>
+                                        <span id="houseChairman">-</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Info Card -->
+                <div class="col-xl-8 col-lg-7 col-md-7">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Подробная информация</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-medium">Номер дома</label>
+                                    <p id="houseNumberDetail" class="form-control-plaintext">-</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-medium">Улица</label>
+                                    <p id="houseStreet" class="form-control-plaintext">-</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-medium">Город</label>
+                                    <p id="houseCity" class="form-control-plaintext">-</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-medium">Статус</label>
+                                    <p id="houseStatusDetail" class="form-control-plaintext">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users in House Card -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Жильцы дома</h5>
+                            <small class="text-muted">Список пользователей</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>ФИО</th>
+                                            <th>Квартира</th>
+                                            <th>Телефон</th>
+                                            <th>Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">
+                                                <i class="ti ti-users ti-sm me-1"></i>
+                                                Нет данных о жильцах
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <span>Вы уверены, что хотите удалить этот дом?</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Отменить</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="page_js">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let houseId = null;
+            let currentHouse = null;
+
+            // Get house ID from URL
+            const pathParts = window.location.pathname.split('/');
+            houseId = pathParts[pathParts.length - 1];
+
+            // DOM elements
+            const elements = {
+                houseNumber: document.getElementById('houseNumber'),
+                status: document.getElementById('houseStatus'),
+                address: document.getElementById('houseAddress'),
+                chairman: document.getElementById('houseChairman'),
+                numberDetail: document.getElementById('houseNumberDetail'),
+                street: document.getElementById('houseStreet'),
+                city: document.getElementById('houseCity'),
+                statusDetail: document.getElementById('houseStatusDetail'),
+                editBtn: document.getElementById('editHouseBtn'),
+                deleteBtn: document.getElementById('deleteHouseBtn'),
+                confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
+                usersTableBody: document.getElementById('usersTableBody')
+            };
+
+            // Load house data
+            loadHouseData();
+
+            // Event listeners
+            if (elements.editBtn) {
+                elements.editBtn.addEventListener('click', function() {
+                    window.location.href = `/houses/edit/${houseId}`;
+                });
+            }
+
+            if (elements.deleteBtn) {
+                elements.deleteBtn.addEventListener('click', function() {
+                    $('#deleteConfirmModal').modal('show');
+                });
+            }
+
+            if (elements.confirmDeleteBtn) {
+                elements.confirmDeleteBtn.addEventListener('click', deleteHouse);
+            }
+
+            async function loadHouseData() {
+                try {
+                    const response = await fetch(`/houses/getHouse/${houseId}`);
+                    if (response.ok) {
+                        currentHouse = await response.json();
+                        displayHouseData(currentHouse);
+                    } else {
+                        throw new Error('Дом не найден');
+                    }
+                } catch (error) {
+                    console.error('Error loading house:', error);
+                    showNotification('Ошибка при загрузке данных дома', 'error');
+                }
+            }
+
+            function displayHouseData(house) {
+                // House number
+                if (elements.houseNumber) {
+                    elements.houseNumber.textContent = `Дом №${house.houseNumber || house.number || '-'}`;
+                }
+
+                if (elements.numberDetail) {
+                    elements.numberDetail.textContent = house.houseNumber || house.number || '-';
+                }
+
+                // Status badge
+                if (elements.status) {
+                    const statusLabels = {
+                        'NEW': { text: 'Новый', class: 'bg-label-info' },
+                        'ACTIVE': { text: 'Активный', class: 'bg-label-success' },
+                        'DEACTIVATED': { text: 'Деактивирован', class: 'bg-label-warning' },
+                        'BLOCKED': { text: 'Заблокирован', class: 'bg-label-danger' }
+                    };
+                    const statusInfo = statusLabels[house.status] || { text: house.status || '-', class: 'bg-label-secondary' };
+                    elements.status.textContent = statusInfo.text;
+                    elements.status.className = `badge ${statusInfo.class}`;
+                }
+
+                if (elements.statusDetail) {
+                    const statusLabels = {
+                        'NEW': 'Новый',
+                        'ACTIVE': 'Активный',
+                        'DEACTIVATED': 'Деактивирован',
+                        'BLOCKED': 'Заблокирован'
+                    };
+                    elements.statusDetail.textContent = statusLabels[house.status] || house.status || '-';
+                }
+
+                // Address
+                if (elements.address) {
+                    const street = house.street?.name || '-';
+                    const city = house.street?.city?.name || '-';
+                    elements.address.textContent = `${street}, ${city}`;
+                }
+
+                if (elements.street) {
+                    elements.street.textContent = house.street?.name || '-';
+                }
+
+                if (elements.city) {
+                    elements.city.textContent = house.street?.city?.name || '-';
+                }
+
+                // Chairman
+                if (elements.chairman) {
+                    elements.chairman.textContent = house.chairman?.fullName || 'Не назначен';
+                }
+            }
+
+            async function deleteHouse() {
+                try {
+                    const response = await fetch(`/houses/${houseId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        $('#deleteConfirmModal').modal('hide');
+                        showNotification('Дом успешно удален', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/houses';
+                        }, 1500);
+                    } else {
+                        throw new Error('Ошибка при удалении');
+                    }
+                } catch (error) {
+                    console.error('Error deleting house:', error);
+                    showNotification('Ошибка при удалении дома', 'error');
+                }
+            }
+
+            function showNotification(message, type = 'info') {
+                if (typeof Swal !== 'undefined') {
+                    const icon = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+                    Swal.fire({
+                        title: type === 'error' ? 'Ошибка' : type === 'success' ? 'Успех' : 'Информация',
+                        text: message,
+                        icon: icon,
+                        customClass: {
+                            confirmButton: 'btn btn-primary waves-effect waves-light'
+                        },
+                        buttonsStyling: false
+                    });
+                } else {
+                    alert(message);
+                }
+            }
+        });
+    </script>
+</th:block>
+
+</body>
+</html>
+

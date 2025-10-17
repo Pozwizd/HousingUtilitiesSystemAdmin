@@ -1,0 +1,208 @@
+services:
+  # ============================================================================
+  # MongoDB Replica Set - Три узла для обеспечения отказоустойчивости
+  # ============================================================================
+
+  # mongo1 - Первый узел replica set (primary с наивысшим приоритетом)
+  # YAML anchor - создаем базовый шаблон для переиспользования
+  mongo1: &mongo-base
+    # Официальный образ MongoDB последней версии
+    image: mongo:latest
+
+    # Команда запуска MongoDB с параметрами replica set
+    # --replSet rs0 - имя replica set (должно совпадать во всех узлах)
+    # --bind_ip_all - принимать соединения со всех сетевых интерфейсов
+    command: >
+      mongod 
+      --replSet rs0 
+      --bind_ip_all
+
+    # Подключение к пользовательской bridge-сети
+    # Все контейнеры в одной сети могут обращаться друг к другу по hostname
+    networks:
+      - housing-network
+
+    # Политика перезапуска: всегда, кроме явной остановки командой docker stop
+    restart: unless-stopped
+
+    # Проверка работоспособности контейнера
+    # test - команда ping к БД через mongosh
+    # interval - интервал между проверками (каждые 10 секунд)
+    # timeout - максимальное время ожидания ответа
+    # retries - количество неудачных попыток до признания контейнера нездоровым
+    # start_period - льготный период после старта (healthcheck не считается failed)
+    healthcheck:
+      test: mongosh --quiet --eval "db.adminCommand('ping')"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+    # Уникальные параметры для первого узла
+    # container_name - имя контейнера в Docker
+    # hostname - hostname внутри контейнера и DNS-имя в сети
+    container_name: mongo1
+    hostname: mongo1
+
+    # Проброс портов: HOST:CONTAINER
+    # Стандартный порт MongoDB 27017, доступен на хосте
+    ports:
+      - "27017:27017"
+
+    # Именованные volumes для персистентности данных
+    # mongo1-data - основное хранилище данных MongoDB
+    # mongo1-config - конфигурационные файлы replica set
+    volumes:
+      - mongo1-data:/data/db
+      - mongo1-config:/data/configdb
+
+  # mongo2 - Второй узел replica set (secondary)
+  # Merge operator - наследуем всю конфигурацию от mongo-base
+  # Переопределяем уникальные параметры
+  mongo2:
+    <<: *mongo-base
+    container_name: mongo2
+    hostname: mongo2
+    # Проброс на другой порт хоста (внутри остается 27017)
+    ports:
+      - "27018:27017"
+    # Отдельные volumes для каждого узла
+    volumes:
+      - mongo2-data:/data/db
+      - mongo2-config:/data/configdb
+
+  # mongo3 - Третий узел replica set (secondary)
+  # Переиспользуем базовую конфигурацию
+  mongo3:
+    <<: *mongo-base
+    container_name: mongo3
+    hostname: mongo3
+    # Еще один порт для внешнего доступа
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo3-data:/data/db
+      - mongo3-config:/data/configdb
+
+  # ============================================================================
+  # Инициализация Replica Set - Одноразовый контейнер
+  # ============================================================================
+
+  # Используем тот же образ для совместимости mongosh
+  mongo-init:
+    image: mongo:latest
+    container_name: mongo-init
+
+    # Та же сеть для доступа к узлам по hostname
+    networks:
+      - housing-network
+
+    # Монтирование скрипта инициализации в контейнер
+    # :ro = read-only для безопасности
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+    # Зависимости: ждем, пока все три узла станут healthy
+    # condition: service_healthy - healthcheck должен быть успешным
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      mongo2:
+        condition: service_healthy
+      mongo3:
+        condition: service_healthy
+
+    # Bash-скрипт для выполнения инициализации
+    # 1. Ждем 10 секунд дополнительной паузы для гарантии готовности
+    # 2. Выполняем скрипт mongo-init.js через mongosh
+    # 3. Выводим сообщение о завершении
+    command: >
+      bash -c "
+        echo 'Waiting for MongoDB...';
+        sleep 10;
+        echo 'Initializing Replica Set...';
+        mongosh --host mongo1:27017 --file /docker-entrypoint-initdb.d/mongo-init.js;
+        echo 'Replica Set initialized!';
+      "
+
+    # Не перезапускать после завершения (одноразовая задача)
+    restart: "no"
+
+  # ============================================================================
+  # Spring Boot Application
+  # ============================================================================
+
+  app:
+    # Сборка из локального Dockerfile
+    # context - контекст сборки (текущая директория)
+    # dockerfile - имя Dockerfile (можно опустить если стандартное)
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: housing-utilities-app
+
+    # Проброс порта веб-приложения
+    # Spring Boot стандартный порт 8080
+    ports:
+      - "8080:8080"
+
+    # Переменные окружения для конфигурации приложения
+    # SPRING_DATA_MONGODB_URI - Connection string для MongoDB replica set с аутентификацией
+    #   Формат: mongodb://username:password@host1:port1,host2:port2,host3:port3/database?options
+    #   replicaSet=rs0 - имя replica set для автоматического failover
+    #   authSource=HousingUtilitiesSystemDB - база данных где хранятся учетные данные
+    # FILE_UPLOAD_DIR - постоянное хранилище загруженных файлов
+    # FILE_TEMP_DIR - временные файлы при загрузке
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://housingapp:HousingApp2024!@mongo1:27017,mongo2:27017,mongo3:27017/HousingUtilitiesSystemDB?replicaSet=rs0&authSource=HousingUtilitiesSystemDB
+      - FILE_UPLOAD_DIR=/app/uploads
+      - FILE_TEMP_DIR=/app/temp-uploads
+
+    # Volumes для персистентности загруженных файлов
+    # app-uploads - именованный volume для постоянных файлов
+    # app-temp - временное хранилище
+    volumes:
+      - app-uploads:/app/uploads
+      - app-temp:/app/temp-uploads
+
+    # Та же сеть для доступа к MongoDB
+    networks:
+      - housing-network
+
+    # Зависимость: ждем успешного завершения инициализации replica set
+    # condition: service_completed_successfully - mongo-init должен завершиться с кодом 0
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+
+    # Автоматический перезапуск при сбоях
+    restart: unless-stopped
+
+# ==============================================================================
+# Persistent Data Volumes - Именованные volumes для хранения данных
+# ==============================================================================
+
+volumes:
+  # MongoDB узлы - отдельные volumes для каждого узла replica set
+  mongo1-data:        # Данные первого узла
+  mongo1-config:      # Конфигурация первого узла
+  mongo2-data:        # Данные второго узла
+  mongo2-config:      # Конфигурация второго узла
+  mongo3-data:        # Данные третьего узла
+  mongo3-config:      # Конфигурация третьего узла
+
+  # Application файлы
+  app-uploads:        # Загруженные пользователями файлы (постоянные)
+  app-temp:           # Временные файлы при обработке загрузок
+
+# ==============================================================================
+# Network Configuration - Пользовательская bridge-сеть
+# ==============================================================================
+
+# Bridge driver - стандартный для одного хоста
+# Позволяет контейнерам обращаться друг к другу по имени сервиса
+# Изолирует контейнеры от внешней сети и других Docker-сетей
+networks:
+  housing-network:
+    driver: bridge

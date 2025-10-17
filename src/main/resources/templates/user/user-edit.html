@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{template/layout.html}">
+
+<head>
+    <title>Пользователи</title>
+    <th:block layout:fragment="page_css">
+
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-6">
+                <h5 class="card-header">Новый пользователь</h5>
+                <form id="formAccountSettings" enctype="multipart/form-data">
+                    <!-- Account -->
+                    <div class="card-body">
+                        <div class="d-flex align-items-start align-items-sm-center gap-6">
+                            <img
+                                    th:src="@{/assets/img/avatars/1.png}"
+                                    alt="user-avatar"
+                                    class="d-block w-px-100 h-px-100 rounded"
+                                    id="uploadedAvatar"/>
+                            <div class="button-wrapper">
+                                <label for="photo" class="btn btn-primary me-3 mb-4" tabindex="0">
+                                    <span class="d-none d-sm-block">Загрузить фото</span>
+                                    <i class="icon-base ti tabler-upload d-block d-sm-none"></i>
+                                    <input
+                                            type="file"
+                                            id="photo"
+                                            name="photoFile"
+                                            class="account-file-input"
+                                            hidden
+                                            accept="image/png, image/jpeg, image/jpg, image/gif"/>
+                                </label>
+                                <button type="button" class="btn btn-label-secondary account-image-reset mb-4">
+                                    <i class="icon-base ti tabler-reset d-block d-sm-none"></i>
+                                    <span class="d-none d-sm-block">Сбросить</span>
+                                </button>
+
+                                <div>Разрешены JPG, GIF или PNG. Максимальный размер 800K</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4">
+
+                            <input type="hidden" id="userId" name="id"/>
+                            <div class="row gy-4 gx-6 mb-3">
+                                <!-- Фамилия -->
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Фамилия <span
+                                            class="text-danger">*</span></label>
+                                    <input class="form-control"
+                                           type="text"
+                                           name="lastName"
+                                           id="lastName"
+                                           placeholder="Введите фамилию"/>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Имя -->
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">Имя <span class="text-danger">*</span></label>
+                                    <input class="form-control"
+                                           type="text"
+                                           name="firstName"
+                                           id="firstName"
+                                           placeholder="Введите имя"
+                                           autofocus/>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Отчество -->
+                                <div class="col-md-6">
+                                    <label for="middleName" class="form-label">Отчество</label>
+                                    <input class="form-control"
+                                           type="text"
+                                           name="middleName"
+                                           id="middleName"
+                                           placeholder="Введите отчество"/>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Телефон -->
+                                <div class="col-md-6">
+                                    <label class="form-label" for="phone">Телефон <span class="text-danger">*</span></label>
+                                    <input type="tel"
+                                           name="phone"
+                                           id="phone"
+                                           class="form-control"
+                                           placeholder="+380501234567"/>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">E-mail <span class="text-danger">*</span></label>
+                                    <input class="form-control"
+                                           type="text"
+                                           name="email"
+                                           id="email"
+                                           placeholder="example@domain.com"/>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Город -->
+                                <div class="col-md-6">
+                                    <label class="form-label" for="cityId">Город <span class="text-danger">*</span></label>
+                                    <select name="cityId" id="cityId" class="form-select select2-city">
+                                        <option value="">Выберите город</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Улица -->
+                                <div class="col-md-6">
+                                    <label for="streetId" class="form-label">Улица <span
+                                            class="text-danger">*</span></label>
+                                    <select name="addressId" id="streetId" class="form-select select2-street" disabled>
+                                        <option value="">Сначала выберите город</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Номер дома -->
+                                <div class="col-md-6">
+                                    <label for="houseId" class="form-label">Номер дома <span
+                                            class="text-danger">*</span></label>
+                                    <select name="houseNumber" id="houseId" class="form-select select2-house" disabled>
+                                        <option value="">Сначала выберите улицу</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Номер квартиры -->
+                                <div class="col-md-6">
+                                    <label for="apartmentNumber" class="form-label">Номер квартиры <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text"
+                                           name="apartmentNumber"
+                                           id="apartmentNumber"
+                                           class="form-control"/>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Площадь квартиры -->
+                                <div class="col-md-6">
+                                    <label for="apartmentArea" class="form-label">Площадь квартиры (м²) <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text"
+                                           name="apartmentArea"
+                                           id="apartmentArea"
+                                           class="form-control"
+                                           placeholder="65.5"/>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Лицевой счет -->
+                                <div class="col-md-6">
+                                    <label for="accountNumber" class="form-label">Лицевой счет <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text"
+                                           name="accountNumber"
+                                           id="accountNumber"
+                                           class="form-control"
+                                           placeholder="Номер лицевого счета"/>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <!-- Статус -->
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label">Статус <span class="text-danger">*</span></label>
+                                    <select name="status" id="status" class="form-select">
+                                        <option value="">Выберите статус</option>
+                                        <option value="ACTIVE">Активный</option>
+                                        <option value="INACTIVE">Неактивный</option>
+                                        <option value="BLOCKED">Заблокирован</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <hr class="my-12"/>
+                            <!-- Секция: Данные для входа -->
+                            <div class="form-section">
+                                <h6>Данные для входа</h6>
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <label for="login" class="form-label">Логин <span
+                                                class="text-danger">*</span></label>
+                                        <input class="form-control"
+                                               type="text"
+                                               name="login"
+                                               id="login"
+                                               placeholder="Введите логин"/>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="password" class="form-label">Пароль <span
+                                                class="text-danger">*</span></label>
+                                        <input class="form-control"
+                                               type="password"
+                                               name="password"
+                                               id="password"
+                                               placeholder="••••••••"/>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="repeatPassword" class="form-label">Повторить пароль <span
+                                                class="text-danger">*</span></label>
+                                        <input class="form-control"
+                                               type="password"
+                                               name="repeatPassword"
+                                               id="repeatPassword"
+                                               placeholder="••••••••"/>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="mt-10">
+                                <button type="submit" class="btn btn-primary me-3">Сохранить изменения</button>
+                                <button type="reset" class="btn btn-label-secondary">Отмена</button>
+                            </div>
+
+                    </div>
+                    <!-- /Account -->
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div>
+    <th:block layout:fragment="page_js">
+        <script th:inline="javascript">
+            window.contextPath = '[[@{/}]]'.replaceAll('"', '');
+            window.defaultAvatarPath = '[[@{/assets/img/avatars/14.png}]]';
+            console.log(window.defaultAvatarPath);
+        </script>
+
+        <script>
+            $(document).ready(function () {
+                // Инициализация Select2 для городов
+                $('#cityId').select2({
+                    placeholder: 'Выберите город',
+                    allowClear: true,
+                    ajax: {
+                        url: '/cities/search',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                q: params.term,
+                                page: params.page || 1
+                            };
+                        },
+                        processResults: function (data, params) {
+                            return {
+                                results: data.map(function (city) {
+                                    return {
+                                        id: city.id,
+                                        text: city.name
+                                    };
+                                }),
+                                pagination: {
+                                    more: false
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 0
+                });
+
+                // Инициализация Select2 для улиц (изначально заблокирован)
+                $('#streetId').select2({
+                    placeholder: 'Сначала выберите город',
+                    allowClear: true,
+                    disabled: true,
+                    ajax: {
+                        url: '/streets/search',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                cityId: $('#cityId').val(),
+                                q: params.term,
+                                page: params.page || 1
+                            };
+                        },
+                        processResults: function (data, params) {
+                            return {
+                                results: data.map(function (street) {
+                                    return {
+                                        id: street.id,
+                                        text: street.name
+                                    };
+                                }),
+                                pagination: {
+                                    more: false
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 0
+                });
+
+                // Инициализация Select2 для домов (изначально заблокирован)
+                $('#houseId').select2({
+                    placeholder: 'Сначала выберите улицу',
+                    allowClear: true,
+                    disabled: true,
+                    ajax: {
+                        url: '/houses/search',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                streetId: $('#streetId').val(),
+                                q: params.term,
+                                page: params.page || 1
+                            };
+                        },
+                        processResults: function (data, params) {
+                            return {
+                                results: data.map(function (house) {
+                                    return {
+                                        id: house.id,
+                                        text: house.number || house.houseNumber || 'Номер не указан'
+                                    };
+                                }),
+                                pagination: {
+                                    more: false
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 0
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', function (e) {
+                // Variables
+                let isEditMode = false;
+                let userId = null;
+                let currentUser = null;
+                let isPopulatingForm = false; // Флаг для предотвращения циклических вызовов
+
+                // Form elements
+                const userForm = document.getElementById('formAccountSettings');
+                const userIdField = document.getElementById('userId');
+                const avatarImg = document.getElementById('uploadedAvatar');
+                const fileInput = document.getElementById('photo');
+                const resetBtn = document.querySelector('.account-image-reset');
+
+                // Form fields
+                const fields = {
+                    firstName: document.getElementById('firstName'),
+                    lastName: document.getElementById('lastName'),
+                    middleName: document.getElementById('middleName'),
+                    phone: document.getElementById('phone'),
+                    email: document.getElementById('email'),
+                    login: document.getElementById('login'),
+                    cityId: document.getElementById('cityId'),
+                    addressId: document.getElementById('streetId'),
+                    houseNumber: document.getElementById('houseId'),
+                    apartmentNumber: document.getElementById('apartmentNumber'),
+                    apartmentArea: document.getElementById('apartmentArea'),
+                    accountNumber: document.getElementById('accountNumber'),
+                    status: document.getElementById('status'),
+                    password: document.getElementById('password'),
+                    confirmPassword: document.getElementById('repeatPassword')
+                };
+
+                // Initialize page
+                init();
+
+                async function init() {
+                    try {
+                        const path = window.location.pathname;
+                        if (path.includes('/edit/')) {
+                            isEditMode = true;
+                            userId = path.split('/edit/')[1];
+                            await loadUserData();
+                        }
+
+                        await loadStatuses();
+
+                        // Setup event listeners
+                        setupEventListeners();
+
+                        // Wait for Select2 initialization using Promise
+                        await waitForSelect2Ready();
+
+                        // If edit mode, populate form
+                        if (isEditMode && currentUser) {
+                            await populateForm(currentUser);
+                        }
+
+                    } catch (error) {
+                        console.error('Initialization error:', error);
+                        showNotification('Ошибка при инициализации страницы', 'error');
+                    }
+                }
+
+                // Функция ожидания готовности Select2
+                function waitForSelect2Ready() {
+                    return new Promise((resolve) => {
+                        // Проверяем, инициализированы ли все Select2
+                        const checkReady = () => {
+                            const cityReady = $(fields.cityId).hasClass('select2-hidden-accessible');
+                            const streetReady = $(fields.addressId).hasClass('select2-hidden-accessible');
+                            const houseReady = $(fields.houseNumber).hasClass('select2-hidden-accessible');
+
+                            if (cityReady && streetReady && houseReady) {
+                                resolve();
+                            } else {
+                                requestAnimationFrame(checkReady);
+                            }
+                        };
+                        checkReady();
+                    });
+                }
+
+                async function loadUserData() {
+                    try {
+                        const response = await fetch(`/users/getUser/${userId}`);
+                        if (response.ok) {
+                            currentUser = await response.json();
+                        } else {
+                            throw new Error('Пользователь не найден');
+                        }
+                    } catch (error) {
+                        console.error('Error loading user:', error);
+                        showNotification('Ошибка при загрузке данных пользователя', 'error');
+                    }
+                }
+
+                // Рефакторинг loadStreets с возвратом Promise
+                function loadStreets(cityId) {
+                    return new Promise(async (resolve, reject) => {
+                        try {
+                            if (!cityId) {
+                                clearSelect($(fields.addressId), 'Сначала выберите город');
+                                $(fields.addressId).prop('disabled', true).select2('disable');
+                                resolve();
+                                return;
+                            }
+
+                            const response = await fetch(`/streets/getByCity/${cityId}`);
+                            if (response.ok) {
+                                const streets = await response.json();
+
+                                // Сохраняем текущее значение, если установлено программно
+                                const currentValue = $(fields.addressId).val();
+
+                                populateSelect($(fields.addressId), streets, 'id', 'name');
+
+                                // Восстанавливаем значение, если было
+                                if (currentValue && isPopulatingForm) {
+                                    $(fields.addressId).val(currentValue);
+                                }
+
+                                $(fields.addressId).prop('disabled', false).select2('enable');
+                                resolve(streets);
+                            } else {
+                                reject(new Error('Failed to load streets'));
+                            }
+                        } catch (error) {
+                            console.error('Error loading streets:', error);
+                            reject(error);
+                        }
+                    });
+                }
+
+                // Рефакторинг loadHouses с возвратом Promise
+                function loadHouses(streetId) {
+                    return new Promise(async (resolve, reject) => {
+                        try {
+                            if (!streetId) {
+                                clearSelect($(fields.houseNumber), 'Сначала выберите улицу');
+                                $(fields.houseNumber).prop('disabled', true).select2('disable');
+                                resolve();
+                                return;
+                            }
+
+                            const response = await fetch(`/houses/getByStreet/${streetId}`);
+                            if (response.ok) {
+                                const houses = await response.json();
+
+                                // Сохраняем текущее значение, если установлено программно
+                                const currentValue = $(fields.houseNumber).val();
+
+                                populateSelect($(fields.houseNumber), houses, 'id', 'number');
+
+                                // Восстанавливаем значение, если было
+                                if (currentValue && isPopulatingForm) {
+                                    $(fields.houseNumber).val(currentValue);
+                                }
+
+                                $(fields.houseNumber).prop('disabled', false).select2('enable');
+                                resolve(houses);
+                            } else {
+                                reject(new Error('Failed to load houses'));
+                            }
+                        } catch (error) {
+                            console.error('Error loading houses:', error);
+                            reject(error);
+                        }
+                    });
+                }
+
+                async function loadStatuses() {
+                    try {
+                        const response = await fetch('/users/getStatuses');
+                        if (response.ok) {
+                            const statuses = await response.json();
+                            populateStatusSelect(statuses);
+                        }
+                    } catch (error) {
+                        console.error('Error loading statuses:', error);
+                    }
+                }
+
+                function populateSelect(selectElement, items, valueField, textField) {
+                    // Сохраняем текущее значение
+                    const currentValue = selectElement.val();
+
+                    // Clear existing options except the first placeholder
+                    selectElement.empty();
+                    selectElement.append('<option value="">Выберите вариант</option>');
+
+                    items.forEach(item => {
+                        const option = new Option(item[textField], item[valueField]);
+                        selectElement.append(option);
+                    });
+
+                    // Восстанавливаем значение, если оно было
+                    if (currentValue && isPopulatingForm) {
+                        selectElement.val(currentValue);
+                    }
+                }
+
+                function populateStatusSelect(statuses) {
+                    const statusSelect = fields.status;
+                    statusSelect.innerHTML = '<option value="">Выберите статус</option>';
+
+                    const statusLabels = {
+                        'ACTIVE': 'Активный',
+                        'INACTIVE': 'Неактивный',
+                        'BLOCKED': 'Заблокирован'
+                    };
+
+                    statuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = statusLabels[status] || status;
+                        statusSelect.appendChild(option);
+                    });
+                }
+
+                function clearSelect(selectElement, placeholder) {
+                    selectElement.empty();
+                    selectElement.append(`<option value="">${placeholder}</option>`);
+                }
+
+                // Установка значения Select2 с данными
+                function setSelect2Value(selectElement, data) {
+                    if (!data || !data.id) return Promise.resolve();
+
+                    return new Promise((resolve) => {
+                        // Проверяем, существует ли опция
+                        if (selectElement.find(`option[value="${data.id}"]`).length) {
+                            selectElement.val(data.id).trigger('change');
+                            resolve();
+                        } else {
+                            // Создаем новую опцию
+                            const option = new Option(data.text, data.id, true, true);
+                            selectElement.append(option);
+
+                            // Используем событие select2:select для отслеживания завершения
+                            selectElement.one('select2:select', () => resolve());
+
+                            selectElement.trigger({
+                                type: 'select2:select',
+                                params: {
+                                    data: data
+                                }
+                            });
+
+                            // На случай, если событие не сработает
+                            setTimeout(resolve, 50);
+                        }
+                    });
+                }
+
+                // Оптимизированная функция заполнения формы
+                async function populateForm(user) {
+                    try {
+                        isPopulatingForm = true; // Устанавливаем флаг
+
+                        console.log('Populating form with user:', user);
+
+                        // Заполнение простых полей
+                        if (user.firstName) fields.firstName.value = user.firstName;
+                        if (user.lastName) fields.lastName.value = user.lastName;
+                        if (user.middleName) fields.middleName.value = user.middleName;
+                        if (user.phone) fields.phone.value = user.phone;
+                        if (user.email) fields.email.value = user.email;
+                        if (user.login) fields.login.value = user.login;
+                        if (user.apartmentNumber) fields.apartmentNumber.value = user.apartmentNumber;
+                        if (user.apartmentArea) fields.apartmentArea.value = user.apartmentArea;
+                        if (user.accountNumber) fields.accountNumber.value = user.accountNumber;
+                        if (user.status) fields.status.value = user.status;
+
+                        // Set user ID
+                        if (userIdField) userIdField.value = user.id;
+
+                        // Последовательная установка каскадных селектов
+                        if (user.city?.id) {
+                            console.log('Setting city:', user.city);
+
+                            // Устанавливаем город
+                            await setSelect2Value($(fields.cityId), {
+                                id: user.city.id,
+                                text: user.city.name
+                            });
+
+                            // Загружаем улицы для выбранного города
+                            await loadStreets(user.city.id);
+
+                            // Устанавливаем улицу, если есть
+                            if (user.street?.id) {
+                                console.log('Setting street:', user.street);
+
+                                await setSelect2Value($(fields.addressId), {
+                                    id: user.street.id,
+                                    text: user.street.name
+                                });
+
+                                // Загружаем дома для выбранной улицы
+                                await loadHouses(user.street.id);
+
+                                // Устанавливаем дом, если есть
+                                if (user.house?.id) {
+                                    console.log('Setting house:', user.house);
+
+                                    const houseText = user.house.number || user.house.houseNumber || 'Номер не указан';
+
+                                    await setSelect2Value($(fields.houseNumber), {
+                                        id: user.house.id,
+                                        text: houseText
+                                    });
+                                }
+                            }
+                        }
+
+                        // Обработка аватара
+                        if (user.photo && user.photo.trim() !== '' && user.photo !== 'default_photo.jpg') {
+                            if (user.photo.startsWith('http') || user.photo.startsWith('/')) {
+                                avatarImg.src = "/" + user.photo;
+                            } else {
+                                avatarImg.src = "/" + user.photo;
+                            }
+                        } else {
+                            avatarImg.src = '/assets/img/avatars/1.png';
+                        }
+
+                        console.log('Form populated successfully');
+
+                    } catch (error) {
+                        console.error('Error populating form:', error);
+                        showNotification('Ошибка при заполнении формы', 'error');
+                    } finally {
+                        isPopulatingForm = false; // Сбрасываем флаг
+                    }
+                }
+
+                function setupEventListeners() {
+                    // City change event
+                    $(fields.cityId).on('change', function() {
+                        // Пропускаем обработку при программной установке значений
+                        if (isPopulatingForm) return;
+
+                        const cityId = this.value;
+
+                        // Очищаем зависимые селекты
+                        clearSelect($(fields.addressId), 'Сначала выберите город');
+                        $(fields.addressId).prop('disabled', true).select2('disable');
+
+                        clearSelect($(fields.houseNumber), 'Сначала выберите улицу');
+                        $(fields.houseNumber).prop('disabled', true).select2('disable');
+
+                        // Загружаем улицы, если выбран город
+                        if (cityId) {
+                            loadStreets(cityId);
+                        }
+                    });
+
+                    // Street change event
+                    $(fields.addressId).on('change', function() {
+                        // Пропускаем обработку при программной установке значений
+                        if (isPopulatingForm) return;
+
+                        const streetId = this.value;
+
+                        // Очищаем дома
+                        clearSelect($(fields.houseNumber), 'Сначала выберите улицу');
+                        $(fields.houseNumber).prop('disabled', true).select2('disable');
+
+                        // Загружаем дома, если выбрана улица
+                        if (streetId) {
+                            loadHouses(streetId);
+                        }
+                    });
+
+                    // Form submit
+                    userForm.addEventListener('submit', handleFormSubmit);
+
+                    // File upload
+                    if (fileInput) {
+                        fileInput.addEventListener('change', handleFileUpload);
+                    }
+
+                    // Reset avatar
+                    if (resetBtn) {
+                        resetBtn.addEventListener('click', resetAvatar);
+                    }
+
+                    // Cancel button
+                    const cancelBtn = document.querySelector('button[type="reset"]');
+                    if (cancelBtn) {
+                        cancelBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            window.history.back();
+                        });
+                    }
+                }
+
+                async function handleFormSubmit(e) {
+                    e.preventDefault();
+
+                    // Clear previous errors
+                    clearValidationErrors();
+
+                    // Client-side validation: check if passwords match
+                    const password = fields.password.value;
+                    const confirmPassword = fields.confirmPassword.value;
+                    
+                    if (password !== confirmPassword) {
+                        const errorContainer = fields.confirmPassword.parentElement.querySelector('.invalid-feedback');
+                        if (errorContainer) {
+                            fields.confirmPassword.classList.add('is-invalid');
+                            errorContainer.textContent = 'Пароли не совпадают';
+                        }
+                        showNotification('Пароли не совпадают', 'error');
+                        return;
+                    }
+
+                    try {
+                        // Show loading state
+                        const submitBtn = userForm.querySelector('button[type="submit"]');
+                        const originalText = submitBtn.textContent;
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Сохранение...';
+
+                        // Prepare form data
+                        const formData = new FormData(userForm);
+                        
+                        // Map repeatPassword to confirmPassword for backend
+                        const repeatPassword = formData.get('repeatPassword');
+                        if (repeatPassword) {
+                            formData.delete('repeatPassword');
+                            formData.append('confirmPassword', repeatPassword);
+                        }
+
+                        // Debug: Log form data
+                        console.log('Form data being sent:');
+                        for (let [key, value] of formData.entries()) {
+                            console.log(`${key}: ${value}`);
+                        }
+
+                        // API endpoint and method
+                        const url = isEditMode ? `/users/${userId}` : '/users/create';
+                        const method = isEditMode ? 'PUT' : 'POST';
+
+                        console.log(`Sending ${method} request to ${url}`);
+
+                        const response = await fetch(url, {
+                            method: method,
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            console.log('Success response:', result);
+                            showNotification(
+                                isEditMode ? 'Пользователь успешно обновлен' : 'Пользователь успешно создан',
+                                'success'
+                            );
+
+                            // Redirect to user list or user view
+                            setTimeout(() => {
+                                window.location.href = '/users';
+                            }, 1500);
+                        } else {
+                            const errorData = await response.json();
+                            console.error('Error response:', errorData);
+                            handleValidationErrors(errorData);
+                        }
+
+                    } catch (error) {
+                        console.error('Form submission error:', error);
+                        showNotification('Ошибка при сохранении данных', 'error');
+                    } finally {
+                        // Restore button state
+                        const submitBtn = userForm.querySelector('button[type="submit"]');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }
+                }
+
+                function handleValidationErrors(errorData) {
+                    // Clear previous errors
+                    clearValidationErrors();
+
+                    // Handle both fieldErrors and validationErrors (from backend)
+                    const errors = errorData.fieldErrors || errorData.validationErrors;
+                    
+                    if (errors) {
+                        Object.keys(errors).forEach(fieldName => {
+                            const field = fields[fieldName];
+                            if (field) {
+                                const errorContainer = field.parentElement.querySelector('.invalid-feedback');
+                                if (errorContainer) {
+                                    field.classList.add('is-invalid');
+                                    errorContainer.textContent = errors[fieldName];
+                                }
+                            }
+                        });
+                        
+                        // Show general notification
+                        showNotification(errorData.message || 'Ошибка валидации данных', 'error');
+                    } else {
+                        showNotification(errorData.message || 'Ошибка валидации данных', 'error');
+                    }
+                }
+
+                function clearValidationErrors() {
+                    Object.values(fields).forEach(field => {
+                        if (field) {
+                            field.classList.remove('is-invalid');
+                            const errorContainer = field.parentElement.querySelector('.invalid-feedback');
+                            if (errorContainer) {
+                                errorContainer.textContent = '';
+                            }
+                        }
+                    });
+                }
+
+                function handleFileUpload(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Validate file type
+                        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                        if (!allowedTypes.includes(file.type)) {
+                            showNotification('Разрешены только изображения (JPG, PNG, GIF)', 'error');
+                            e.target.value = '';
+                            return;
+                        }
+
+                        // Validate file size (800KB)
+                        if (file.size > 800 * 1024) {
+                            showNotification('Размер файла не должен превышать 800KB', 'error');
+                            e.target.value = '';
+                            return;
+                        }
+
+                        // Preview image
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            avatarImg.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+
+                function resetAvatar() {
+                    avatarImg.src = '/assets/img/avatars/1.png';
+                    if (fileInput) {
+                        fileInput.value = '';
+                    }
+                }
+
+                function showNotification(message, type = 'info') {
+                    // Используем toast.js для уведомлений
+                    let title = '';
+                    switch(type) {
+                        case 'error':
+                            title = 'Ошибка';
+                            break;
+                        case 'success':
+                            title = 'Успех';
+                            break;
+                        case 'warning':
+                            title = 'Предупреждение';
+                            break;
+                        default:
+                            title = 'Информация';
+                    }
+                    showToast(type, title, message);
+                }
+            });
+        </script>
+
+    </th:block>
+</div>
+
+
+
+</body>
+</html>
