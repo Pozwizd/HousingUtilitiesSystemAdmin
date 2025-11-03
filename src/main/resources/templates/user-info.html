@@ -167,13 +167,16 @@
         </div>
     </div>
 
+    <script th:inline="javascript">
+        window.contextPath = '[[@{/}]]'.replaceAll('"', '').replace(/\/$/, '');
+    </script>
     <script>
         // Добавляем интерактивность для JSON API
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Admin Info Page loaded');
             
             // Загружаем дополнительную информацию через API
-            fetch('/current-user')
+            fetch(window.contextPath + 'current-user')
                 .then(response => response.json())
                 .then(data => {
                     console.log('Current admin API response:', data);

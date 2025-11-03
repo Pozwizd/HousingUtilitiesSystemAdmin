@@ -2,6 +2,7 @@ package org.spacelab.housingutilitiessystemadmin.mappers;
 
 import org.mapstruct.*;
 import org.spacelab.housingutilitiessystemadmin.entity.User;
+import org.spacelab.housingutilitiessystemadmin.models.PageResponse;
 import org.spacelab.housingutilitiessystemadmin.models.user.UserRequest;
 import org.spacelab.housingutilitiessystemadmin.models.user.UserResponse;
 import org.spacelab.housingutilitiessystemadmin.models.user.UserResponseTable;
@@ -12,6 +13,32 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {CityMapper.class, StreetMapper.class, HouseMapper.class})
 public interface UserMapper {
+
+    @Mapping(target = "id", expression = "java(user.getId() != null ? user.getId().toString() : null)")
+    @Mapping(target = "cityName", source = "city.name")
+    @Mapping(target = "streetName", source = "street.name")
+    @Mapping(target = "houseNumber", source = "house.houseNumber")
+    @Mapping(target = "apartmentNumber", source = "apartmentNumber")
+    @Mapping(target = "accountNumber", source = "accountNumber")
+    @Mapping(target = "phoneNumber", source = "phone")
+    @Mapping(target = "status", expression = "java(user.getStatus() != null ? user.getStatus().name() : null)")
+    UserResponseTable toResponseTable(User user);
+
+    default Page<UserResponseTable> toResponseTablePage(Page<User> users) {
+        if (users == null) {
+            return null;
+        }
+        List<UserResponseTable> responseList = toResponseTableList(users.getContent());
+        return new PageImpl<>(responseList, users.getPageable(), users.getTotalElements());
+    }
+
+    default PageResponse<UserResponseTable> toPageResponse(Page<User> users) {
+        if (users == null) {
+            return null;
+        }
+        Page<UserResponseTable> page = toResponseTablePage(users);
+        return PageResponse.of(page);
+    }
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "login", source = "login")
@@ -26,15 +53,7 @@ public interface UserMapper {
     @Mapping(target = "login", source = "login")
     UserResponse mapUserToResponse(User user);
 
-    @Mapping(target = "id", expression = "java(user.getId() != null ? user.getId().toString() : null)")
-    @Mapping(target = "cityName", source = "city.name")
-    @Mapping(target = "streetName", source = "street.name")
-    @Mapping(target = "houseNumber", source = "house.houseNumber")
-    @Mapping(target = "apartmentNumber", source = "apartmentNumber")
-    @Mapping(target = "accountNumber", source = "accountNumber")
-    @Mapping(target = "phoneNumber", source = "phone")
-    @Mapping(target = "status", expression = "java(user.getStatus() != null ? user.getStatus().name() : null)")
-    UserResponseTable toResponseTable(User user);
+
 
     List<UserResponse> toResponseList(List<User> users);
 
@@ -48,13 +67,7 @@ public interface UserMapper {
         return new PageImpl<>(responseList, users.getPageable(), users.getTotalElements());
     }
 
-    default Page<UserResponseTable> toResponseTablePage(Page<User> users) {
-        if (users == null) {
-            return null;
-        }
-        List<UserResponseTable> responseList = toResponseTableList(users.getContent());
-        return new PageImpl<>(responseList, users.getPageable(), users.getTotalElements());
-    }
+
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "city", ignore = true)

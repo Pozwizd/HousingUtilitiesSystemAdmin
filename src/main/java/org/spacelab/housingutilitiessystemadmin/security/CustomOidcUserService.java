@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.spacelab.housingutilitiessystemadmin.entity.Admin;
 import org.spacelab.housingutilitiessystemadmin.entity.Role;
 import org.spacelab.housingutilitiessystemadmin.repository.AdminRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomOidcUserService extends OidcUserService {
 
     private final AdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -47,7 +49,7 @@ public class CustomOidcUserService extends OidcUserService {
             admin.setUsername(name != null && !name.isEmpty() ? name : email);
             admin.setPathAvatar(picture);
             admin.setRole(Role.ADMIN);
-            admin.setPassword("");
+            admin.setPassword(passwordEncoder.encode(""));
             admin.setEnabled(true);
             
             admin = adminRepository.save(admin);

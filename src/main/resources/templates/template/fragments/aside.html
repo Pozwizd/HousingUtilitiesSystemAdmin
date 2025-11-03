@@ -7,24 +7,22 @@
             <li class="menu-item" th:classappend="${pageActive == 'users' ? 'active' : ''}">
                 <a th:href="@{/}" class="menu-link">
                     <i class="menu-icon icon-base ti tabler-app-window"></i>
-                    <div>Пользователи</div>
+                    <div data-i18n="pages.users">Пользователи</div>
                 </a>
             </li>
             <li class="menu-item" th:classappend="${pageActive == 'chairmen' ? 'active' : ''}">
                 <a th:href="@{/chairmen/}" class="menu-link">
                     <i class="menu-icon icon-base ti tabler-app-window"></i>
-                    <div>Председатели</div>
+                    <div data-i18n="pages.chairmen">Председатели</div>
                 </a>
             </li>
             <li class="menu-item" th:classappend="${pageActive == 'houses' ? 'active' : ''}">
                 <a th:href="@{/houses/}" class="menu-link">
                     <i class="menu-icon icon-base ti tabler-app-window"></i>
-                    <div>Дома</div>
+                    <div data-i18n="pages.houses">Дома</div>
                 </a>
             </li>
         </ul>
     </div>
 </aside>
 <!-- / Menu -->
-
-</html>

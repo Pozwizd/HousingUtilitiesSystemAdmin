@@ -70,30 +70,35 @@ window.templateName = document.documentElement.getAttribute('data-template');
  */
 
 if (typeof TemplateCustomizer !== 'undefined') {
-  window.templateCustomizer = new TemplateCustomizer({
-    displayCustomizer: true,
-    lang: localStorage.getItem('templateCustomizer-' + templateName + '--Lang') || 'en', // Set default language here
-    // defaultPrimaryColor: '#D11BB4',
-    // defaultSkin: 1,
-    // defaultTheme: 'system',
-    // defaultSemiDark: true,
-    // defaultContentLayout: 'wide',
-    // defaultHeaderType: 'static',
-    // defaultMenuCollapsed: true,
-    // defaultNavbarType: 'static',
-    // defaultTextDir: 'rtl',
-    // defaultFooterFixed: false,
-    // defaultShowDropdownOnHover: false,
-    controls: [
-      'color',
-      'theme',
-      'skins',
-      'semiDark',
-      'layoutCollapsed',
-      'layoutNavbarOptions',
-      'headerType',
-      'contentLayout',
-      'rtl'
-    ]
-  });
+    // Only use supported languages (template-customizer supports 'en' by default)
+    const supportedLangs = ['en'];
+    const storedLang = localStorage.getItem('templateCustomizer-' + templateName + '--Lang');
+    const validLang = supportedLangs.includes(storedLang) ? storedLang : 'en';
+    
+    window.templateCustomizer = new TemplateCustomizer({
+        displayCustomizer: true,
+        lang: validLang, // Set default language here
+        // defaultPrimaryColor: '#D11BB4',
+        // defaultSkin: 1,
+        // defaultTheme: 'system',
+        // defaultSemiDark: true,
+        // defaultContentLayout: 'wide',
+        // defaultHeaderType: 'static',
+        // defaultMenuCollapsed: true,
+        // defaultNavbarType: 'static',
+        // defaultTextDir: 'rtl',
+        // defaultFooterFixed: false,
+        // defaultShowDropdownOnHover: false,
+        controls: [
+            'color',
+            'theme',
+            'skins',
+            'semiDark',
+            'layoutCollapsed',
+            'layoutNavbarOptions',
+            'headerType',
+            'contentLayout',
+            'rtl'
+        ]
+    });
 }

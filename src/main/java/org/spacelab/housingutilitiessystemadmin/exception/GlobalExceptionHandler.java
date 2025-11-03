@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("Async operation failed: " + cause.getMessage())
+                .message("errors.asyncOperationFailed")
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
 
@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message("Validation failed")
+                .message("common.validationFailed")
                 .validationErrors(errors)
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
@@ -100,7 +100,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("Internal server error")
+                .message("errors.internalServerError")
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
 

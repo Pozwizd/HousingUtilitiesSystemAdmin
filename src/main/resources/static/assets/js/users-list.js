@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         ...currentFilters
       });
 
-      const response = await fetch(`/admin/users/getAllUsers?${params}`);
+      const response = await fetch((window.contextPath || '') + `users/getAllUsers?${params}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         <td>
           <div class="d-flex align-items-center">
             <div class="avatar avatar-sm me-2">
-              <img src="${user.photo || '/assets/img/avatars/1.png'}" alt="Avatar" class="rounded-circle">
+              <img src="${user.photo ? ((window.contextPath || '') + '/' + user.photo) : ((window.contextPath || '') + '/assets/img/avatars/1.png')}" alt="Avatar" class="rounded-circle">
             </div>
             <div>
               <strong>${user.fullName || ''}</strong>
@@ -170,10 +170,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
               <i class="ti ti-dots-vertical"></i>
             </button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="/admin/users/${user.id}">
+              <a class="dropdown-item" href="${(window.contextPath || '') + 'users/' + user.id}">
                 <i class="ti ti-eye me-1"></i> Просмотр
               </a>
-              <a class="dropdown-item" href="/admin/users/edit/${user.id}">
+              <a class="dropdown-item" href="${(window.contextPath || '') + 'users/edit/' + user.id}">
                 <i class="ti ti-edit me-1"></i> Редактировать
               </a>
               <button class="dropdown-item text-danger delete-user-btn" data-user-id="${user.id}" data-user-name="${user.fullName}">
@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
       if (result.isConfirmed) {
         try {
-          const response = await fetch(`/admin/users/${userId}`, {
+          const response = await fetch((window.contextPath || '') + `users/${userId}`, {
             method: 'DELETE'
           });
 
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     } else {
       if (confirm(`Удалить пользователя "${userName}"?`)) {
         try {
-          const response = await fetch(`/admin/users/${userId}`, {
+          const response = await fetch((window.contextPath || '') + `users/${userId}`, {
             method: 'DELETE'
           });
 

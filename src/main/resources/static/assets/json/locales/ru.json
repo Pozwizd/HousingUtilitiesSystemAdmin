@@ -1,0 +1,379 @@
+{
+  "nav": {
+    "shortcuts": "Ярлыки",
+    "addShortcuts": "Добавить ярлыки",
+    "notification": "Уведомления",
+    "newNotifications": "{{count}} Новых",
+    "markAllRead": "Отметить все как прочитанные",
+    "viewAllNotifications": "Просмотреть все уведомления",
+    "toggleTheme": "Переключить тему",
+    "light": "Светлая",
+    "dark": "Темная",
+    "system": "Системная",
+    "admin": "Администратор",
+    "profile": "Профиль",
+    "logout": "Выйти"
+  },
+  "pages": {
+    "users": "Пользователи",
+    "houses": "Дома",
+    "chairmen": "Председатели",
+    "profile": "Профиль",
+    "dashboard": "Панель управления"
+  },
+  "common": {
+    "add": "Добавить",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "view": "Просмотреть",
+    "save": "Сохранить",
+    "cancel": "Отменить",
+    "close": "Закрыть",
+    "clear": "Очистить",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "actions": "Действия",
+    "status": "Статус",
+    "saving": "Сохранение...",
+    "loading": "Загрузка...",
+    "saveChanges": "Сохранить изменения",
+    "confirmDelete": "Подтверждение удаления",
+    "areYouSure": "Вы уверены?",
+    "noDataFound": "Данные не найдены",
+    "pagination": "Навигация по страницам",
+    "validationFailed": "Ошибка валидации"
+  },
+  "users": {
+    "title": "Пользователи",
+    "addUser": "Добавить пользователя",
+    "editUser": "Редактировать пользователя",
+    "createUser": "Создать пользователя",
+    "user": "Пользователь",
+    "newUser": "Новый пользователь",
+    "userProfile": "Профиль пользователя",
+    "fullName": "ФИО",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "middleName": "Отчество",
+    "city": "Город",
+    "street": "Улица",
+    "house": "Дом",
+    "apartment": "Квартира",
+    "apartmentNumber": "Номер квартиры",
+    "apartmentArea": "Площадь квартиры",
+    "account": "Счет",
+    "accountNumber": "Лицевой счет",
+    "phone": "Телефон",
+    "email": "Email",
+    "login": "Логин",
+    "password": "Пароль",
+    "repeatPassword": "Повторить пароль",
+    "address": "Адрес",
+    "houseNumber": "Номер дома",
+    "personalAccount": "Лицевой счет",
+    "contactInfo": "Контактная информация",
+    "detailedInfo": "Подробная информация",
+    "userBills": "Счета пользователя",
+    "paymentHistory": "История платежей",
+    "period": "Период",
+    "amount": "Сумма",
+    "date": "Дата",
+    "noBillsData": "Нет данных о счетах",
+    "back": "Назад",
+    "uploadPhoto": "Загрузить фото",
+    "reset": "Сбросить",
+    "allowedFormats": "Разрешены JPG, GIF или PNG. Максимальный размер 800K",
+    "loginData": "Данные для входа",
+    "placeholders": {
+      "enterLastName": "Введите фамилию",
+      "enterFirstName": "Введите имя",
+      "enterMiddleName": "Введите отчество",
+      "enterPhone": "+380501234567",
+      "enterEmail": "example@domain.com",
+      "selectCity": "Выберите город",
+      "selectCityFirst": "Сначала выберите город",
+      "selectStreet": "Выберите улицу",
+      "selectStreetFirst": "Сначала выберите улицу",
+      "selectHouse": "Номер дома",
+      "enterApartmentArea": "65.5",
+      "enterAccountNumber": "Номер лицевого счета",
+      "selectStatus": "Выберите статус",
+      "enterLogin": "Введите логин",
+      "enterPassword": "••••••••"
+    },
+    "deleteConfirm": "Вы уверены, что хотите удалить этого пользователя?",
+    "deleteSuccess": "Пользователь успешно удален",
+    "deleteError": "Не удалось удалить пользователя",
+    "notFound": "Пользователи не найдены",
+    "validation": {
+      "passwordMismatch": "Пароли не совпадают",
+      "invalidFileType": "Недопустимый тип файла. Разрешены только JPG, PNG и GIF",
+      "fileTooLarge": "Размер файла превышает {{maxSize}}",
+      "required": "Это поле обязательно для заполнения",
+      "invalidEmail": "Введите корректный email адрес",
+      "invalidPhone": "Введите корректный номер телефона",
+      "firstName": {
+        "NotBlank": "Имя обязательно для заполнения",
+        "Size": "Имя должно содержать от 2 до 50 символов"
+      },
+      "middleName": {
+        "Size": "Отчество должно содержать менее 50 символов"
+      },
+      "lastName": {
+        "NotBlank": "Фамилия обязательна для заполнения",
+        "Size": "Фамилия должна содержать от 2 до 50 символов"
+      },
+      "phone": {
+        "NotBlank": "Номер телефона обязателен для заполнения"
+      },
+      "email": {
+        "NotBlank": "Email обязателен для заполнения",
+        "Email": "Email должен быть корректным"
+      },
+      "login": {
+        "NotBlank": "Логин обязателен для заполнения",
+        "Size": "Логин должен содержать от 3 до 50 символов"
+      },
+      "cityId": {
+        "NotNull": "Город обязателен для выбора"
+      },
+      "addressId": {
+        "NotNull": "Улица обязательна для выбора"
+      },
+      "houseId": {
+        "NotNull": "Дом обязателен для выбора"
+      },
+      "houseNumber": {
+        "NotBlank": "Номер дома обязателен для заполнения"
+      },
+      "apartmentNumber": {
+        "NotBlank": "Номер квартиры обязателен для заполнения"
+      },
+      "apartmentArea": {
+        "NotNull": "Площадь квартиры обязательна для заполнения"
+      },
+      "accountNumber": {
+        "NotBlank": "Номер счета обязателен для заполнения"
+      },
+      "status": {
+        "NotBlank": "Статус обязателен для выбора"
+      },
+      "password": {
+        "NotBlank": "Пароль обязателен для заполнения",
+        "Size": "Пароль должен содержать минимум 6 символов",
+        "notMatch": "Пароли не совпадают"
+      },
+      "confirmPassword": {
+        "NotBlank": "Подтверждение пароля обязательно"
+      }
+    },
+    "errors": {
+      "initialization": "Ошибка инициализации страницы",
+      "loadFailed": "Не удалось загрузить данные пользователя",
+      "loadStreets": "Не удалось загрузить список улиц",
+      "loadHouses": "Не удалось загрузить список домов",
+      "populateForm": "Ошибка при заполнении формы",
+      "saveFailed": "Не удалось сохранить данные",
+      "validation": "Проверьте правильность заполнения полей",
+      "loadData": "Ошибка загрузки данных"
+    },
+    "success": {
+      "created": "Пользователь {{userName}} успешно создан",
+      "updated": "Данные пользователя {{userName}} успешно обновлены"
+    },
+    "statusOptions": {
+      "active": "Активный",
+      "inactive": "Неактивный",
+      "blocked": "Заблокирован"
+    }
+  },
+  "houses": {
+    "title": "Дома",
+    "addHouse": "Добавить дом",
+    "editHouse": "Редактировать дом",
+    "createHouse": "Создать дом",
+    "house": "Дом",
+    "newHouse": "Новый дом",
+    "houseProfile": "Профиль дома",
+    "houseNumber": "Номер дома",
+    "street": "Улица",
+    "city": "Город",
+    "chairman": "Председатель",
+    "address": "Адрес",
+    "chairmanInfo": "Информация о председателе",
+    "notAssigned": "Не назначен",
+    "residents": "Жильцы дома",
+    "residentsList": "Список пользователей",
+    "noResidentsData": "Нет данных о жильцах",
+    "detailedInfo": "Подробная информация",
+    "placeholders": {
+      "enterHouseNumber": "Введите номер дома",
+      "selectStreet": "Выберите улицу",
+      "selectChairman": "Выберите председателя",
+      "selectStatus": "Выберите статус"
+    },
+    "deleteConfirm": "Вы уверены, что хотите удалить этот дом?",
+    "deleteSuccess": "Дом успешно удален",
+    "deleteError": "Не удалось удалить дом",
+    "notFound": "Дома не найдены",
+    "loadError": "Не удалось загрузить данные домов",
+    "statusOptions": {
+      "new": "Новый",
+      "active": "Активный",
+      "deactivated": "Деактивирован",
+      "blocked": "Заблокирован"
+    }
+  },
+  "chairmen": {
+    "title": "Председатели",
+    "addChairman": "Добавить председателя",
+    "editChairman": "Редактировать председателя",
+    "createChairman": "Создать председателя",
+    "chairman": "Председатель",
+    "newChairman": "Новый председатель",
+    "chairmanProfile": "Профиль председателя",
+    "fullName": "ФИО",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "middleName": "Отчество",
+    "phone": "Телефон",
+    "email": "Email",
+    "login": "Логин",
+    "password": "Пароль",
+    "repeatPassword": "Повторить пароль",
+    "contactInfo": "Контактная информация",
+    "detailedInfo": "Подробная информация",
+    "uploadPhoto": "Загрузить фото",
+    "reset": "Сбросить",
+    "allowedFormats": "Разрешены JPG, GIF или PNG. Максимальный размер 800K",
+    "loginData": "Данные для входа",
+    "placeholders": {
+      "enterFirstName": "Введите имя",
+      "enterLastName": "Введите фамилию",
+      "enterMiddleName": "Введите отчество",
+      "enterPhone": "+380501234567",
+      "enterEmail": "example@domain.com",
+      "selectStatus": "Выберите статус",
+      "enterLogin": "Введите логин",
+      "enterPassword": "••••••••"
+    },
+    "deleteConfirm": "Вы уверены, что хотите удалить этого председателя?",
+    "deleteSuccess": "Председатель успешно удален",
+    "deleteError": "Не удалось удалить председателя",
+    "notFound": "Председатели не найдены",
+    "loadError": "Не удалось загрузить данные председателей",
+    "statusOptions": {
+      "new": "Новый",
+      "active": "Активный",
+      "deactivated": "Деактивирован",
+      "blocked": "Заблокирован"
+    }
+  },
+  "profile": {
+    "title": "Профиль администратора",
+    "settings": "Настройки профиля",
+    "uploadPhoto": "Загрузить новое фото",
+    "reset": "Сбросить",
+    "allowedFormats": "Допустимы JPG, GIF или PNG. Максимальный размер 800K",
+    "username": "Имя пользователя",
+    "email": "E-mail",
+    "emailReadonly": "Email нельзя изменить",
+    "phone": "Телефон",
+    "organization": "Организация",
+    "address": "Адрес",
+    "city": "Город",
+    "state": "Область / Регион",
+    "zipCode": "Почтовый индекс",
+    "country": "Страна",
+    "selectCountry": "Выберите страну",
+    "language": "Язык",
+    "selectLanguage": "Выберите язык",
+    "timezone": "Часовой пояс",
+    "selectTimezone": "Выберите часовой пояс",
+    "currency": "Валюта",
+    "selectCurrency": "Выберите валюту",
+    "changePassword": "Изменить пароль",
+    "currentPassword": "Текущий пароль",
+    "newPassword": "Новый пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "enterCurrentPassword": "Введите текущий пароль",
+    "enterNewPassword": "Введите новый пароль",
+    "repeatNewPassword": "Повторите новый пароль",
+    "enterUsername": "Введите имя пользователя",
+    "enterAddress": "Улица, дом, квартира",
+    "enterCity": "Название города",
+    "enterState": "Область или регион",
+    "profileUpdated": "Профиль успешно обновлен",
+    "passwordChanged": "Пароль успешно изменен",
+    "avatarUploaded": "Аватар успешно загружен",
+    "avatarDeleted": "Аватар успешно удален",
+    "deleteAvatarConfirm": "Вы уверены, что хотите удалить аватар?",
+    "fileSizeError": "Размер файла не должен превышать 800KB",
+    "onlyImages": "Допустимы только изображения",
+    "updateError": "Ошибка при обновлении профиля",
+    "passwordChangeError": "Ошибка при изменении пароля",
+    "avatarUploadError": "Ошибка при загрузке аватара",
+    "avatarDeleteError": "Ошибка при удалении аватара",
+    "loadError": "Ошибка при загрузке профиля",
+    "passwordMinLength": "Пароль должен содержать минимум 6 символов",
+    "countries": {
+      "ukraine": "Украина",
+      "usa": "США",
+      "uk": "Великобритания",
+      "germany": "Германия",
+      "france": "Франция",
+      "poland": "Польша",
+      "canada": "Канада",
+      "australia": "Австралия"
+    },
+    "languages": {
+      "ukrainian": "Украинский",
+      "russian": "Русский",
+      "english": "Английский",
+      "german": "Немецкий",
+      "french": "Французский",
+      "polish": "Польский"
+    }
+  },
+  "status": {
+    "new": "Новый",
+    "active": "Активный",
+    "deactivated": "Деактивирован",
+    "blocked": "Заблокирован"
+  },
+  "notifications": {
+    "titles": {
+      "error": "Ошибка",
+      "success": "Успех",
+      "warning": "Предупреждение",
+      "info": "Информация"
+    }
+  },
+  "auth": {
+    "login": "Войти",
+    "email": "Email",
+    "password": "Пароль",
+    "enterEmail": "Введите email",
+    "enterPassword": "Введите пароль",
+    "forgotPassword": "Забыли пароль?",
+    "rememberMe": "Запомнить меня",
+    "signIn": "Войти",
+    "signInWithGoogle": "Войти через Google",
+    "invalidCredentials": "Неверный email или пароль",
+    "forgotPasswordTitle": "Забыли пароль? 🔒",
+    "forgotPasswordDescription": "Введите свой e-mail, и мы вышлем вам инструкции по сбросу пароля",
+    "sendMessage": "Отправить сообщение",
+    "backToLogin": "Назад к входу",
+    "newPassword": "Новый пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "saveNewPassword": "Сохранить новый пароль",
+    "wrongEmail": "Неверная почта",
+    "fieldCannotBeEmpty": "Поле не может быть пустым",
+    "wrongPassword": "Неверный пароль",
+    "passwordsDoNotMatch": "Пароли не совпадают"
+  },
+  "errors": {
+    "asyncOperationFailed": "Ошибка асинхронной операции",
+    "internalServerError": "Внутренняя ошибка сервера"
+  }
+}

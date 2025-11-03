@@ -3,7 +3,7 @@
       layout:decorate="~{template/layout.html}">
 
 <head>
-    <title>Пользователи</title>
+    <title data-i18n="users.title">Пользователи</title>
     <th:block layout:fragment="page_css">
 
     </th:block>
@@ -13,44 +13,44 @@
 <div layout:fragment="content">
     <div class="main-card mb-3 card" id="card-block">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Пользователи</h5>
-            <a th:href="@{/users/create}" class="btn btn-primary btn-sm">Добавить</a>
+            <h5 class="mb-0" data-i18n="users.title">Пользователи</h5>
+            <a th:href="@{/users/create}" class="btn btn-primary btn-sm" data-i18n="common.add">Добавить</a>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table style="width: 100%;" class="table table-hover table-striped table-bordered">
                     <thead>
                     <tr>
-                        <th>ФИО</th>
-                        <th>Город</th>
-                        <th>Улица</th>
-                        <th>Дом</th>
-                        <th>Квартира</th>
-                        <th>Счет</th>
-                        <th>Телефон</th>
-                        <th>Статус</th>
-                        <th>Действия</th>
+                        <th data-i18n="users.fullName">ФИО</th>
+                        <th data-i18n="users.city">Город</th>
+                        <th data-i18n="users.street">Улица</th>
+                        <th data-i18n="users.house">Дом</th>
+                        <th data-i18n="users.apartment">Квартира</th>
+                        <th data-i18n="users.account">Счет</th>
+                        <th data-i18n="users.phone">Телефон</th>
+                        <th data-i18n="common.status">Статус</th>
+                        <th data-i18n="common.actions">Действия</th>
                     </tr>
                     <!-- Filter Row -->
                     <tr>
                         <th><input type="text" class="form-control form-control-sm filter-input"
-                                   data-filter-key="fullName" placeholder="ФИО"></th>
+                                   data-filter-key="fullName" data-i18n="[placeholder]users.fullName" placeholder="ФИО"></th>
                         <th><input type="text" class="form-control form-control-sm filter-input"
-                                   data-filter-key="cityName" placeholder="Город"></th>
+                                   data-filter-key="cityName" data-i18n="[placeholder]users.city" placeholder="Город"></th>
                         <th><input type="text" class="form-control form-control-sm filter-input"
-                                   data-filter-key="streetName" placeholder="Улица"></th>
+                                   data-filter-key="streetName" data-i18n="[placeholder]users.street" placeholder="Улица"></th>
                         <th><input type="text" class="form-control form-control-sm filter-input"
-                                   data-filter-key="houseNumber" placeholder="Дом"></th>
+                                   data-filter-key="houseNumber" data-i18n="[placeholder]users.house" placeholder="Дом"></th>
                         <th><input type="text" class="form-control form-control-sm filter-input"
-                                   data-filter-key="apartmentNumber" placeholder="Квартира"></th>
+                                   data-filter-key="apartmentNumber" data-i18n="[placeholder]users.apartment" placeholder="Квартира"></th>
                         <th><input type="text" class="form-control form-control-sm filter-input"
-                                   data-filter-key="accountNumber" placeholder="Счет"></th>
+                                   data-filter-key="accountNumber" data-i18n="[placeholder]users.account" placeholder="Счет"></th>
                         <th><input type="text" class="form-control form-control-sm filter-input"
-                                   data-filter-key="phoneNumber" placeholder="Телефон"></th>
+                                   data-filter-key="phoneNumber" data-i18n="[placeholder]users.phone" placeholder="Телефон"></th>
                         <th><input type="text" class="form-control form-control-sm filter-input"
-                                   data-filter-key="status" placeholder="Статус"></th>
+                                   data-filter-key="status" data-i18n="[placeholder]common.status" placeholder="Статус"></th>
                         <th class="text-center">
-                            <button type="button" id="clearFiltersBtn" class="btn btn-light btn-sm">Очистить
+                            <button type="button" id="clearFiltersBtn" class="btn btn-light btn-sm" data-i18n="common.clear">Очистить
                             </button>
                         </th>
                     </tr>
@@ -70,7 +70,7 @@
                     <option value="100">100</option>
                 </select>
             </label>
-            <nav aria-label="Навигация по страницам">
+            <nav aria-label="Pagination">
                 <ul class="pagination mb-0" id="pagination">
 
                 </ul>
@@ -81,19 +81,19 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="deleteConfirmModalLabel">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel" data-i18n="common.confirmDelete">
                             Подтверждение удаления</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Закрыть"></button>
+                                data-i18n="[aria-label]common.close" aria-label="Закрыть"></button>
                     </div>
                     <div class="modal-body">
-                        <span>Вы уверены, что хотите удалить этого пользователя?</span>
+                        <span data-i18n="users.deleteConfirm">Вы уверены, что хотите удалить этого пользователя?</span>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-label-secondary"
-                                data-bs-dismiss="modal" >Отменить
+                                data-bs-dismiss="modal" data-i18n="common.cancel">Отменить
                         </button>
-                        <button type="button" class="btn btn-danger" id="confirm-delete-btn">Удалить
+                        <button type="button" class="btn btn-danger" id="confirm-delete-btn" data-i18n="common.delete">Удалить
                         </button>
                     </div>
                 </div>
@@ -107,7 +107,36 @@
 
 <div>
     <th:block layout:fragment="page_js">
+        <script th:inline="javascript">
+            window.contextPath = '[[@{/}]]'.replaceAll('"', '').replace(/\/$/, '');
+        </script>
         <script>
+            // Переводим статические элементы после загрузки i18next
+            function translateElements() {
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (key.startsWith('[placeholder]')) {
+                        const placeholderKey = key.replace('[placeholder]', '');
+                        element.placeholder = i18next.t(placeholderKey);
+                    } else if (key.startsWith('[aria-label]')) {
+                        const ariaKey = key.replace('[aria-label]', '');
+                        element.setAttribute('aria-label', i18next.t(ariaKey));
+                    } else {
+                        element.textContent = i18next.t(key);
+                    }
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof i18next !== 'undefined') {
+                    i18next.on('initialized', translateElements);
+                    i18next.on('languageChanged', translateElements);
+                    if (i18next.isInitialized) {
+                        translateElements();
+                    }
+                }
+            });
+
             $(document).ready(function() {
                 let currentPage = 0;
                 let pageSize = 10;
@@ -126,7 +155,7 @@
                     });
 
                     $.ajax({
-                        url: '/users/getAll',
+                        url: window.contextPath + '/users/getAll',
                         type: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify(requestData),
@@ -135,7 +164,10 @@
                             renderPagination(response);
                         },
                         error: function(xhr, status, error) {
-                            console.error('Ошибка загрузки данных:', error);
+                            console.error('Error loading data:', error);
+                            if (typeof i18next !== 'undefined' && typeof showI18nToast === 'function') {
+                                showI18nToast('error', 'notifications.titles.error', 'users.errors.loadData');
+                            }
                         }
                     });
                 }
@@ -161,10 +193,10 @@
                               <i class="icon-base ti tabler-dots-vertical"></i>
                             </button>
                             <div class="dropdown-menu">
-                                  <a href="/users/edit/${user.id}" class="dropdown-item"><i
-                                      class="icon-base ti tabler-pencil me-1"></i> Edit</a>
+                                  <a href="${window.contextPath}/users/edit/${user.id}" class="dropdown-item"><i
+                                      class="icon-base ti tabler-pencil me-1"></i> <span data-i18n="common.edit">Edit</span></a>
                                   <button class="dropdown-item delete-btn" data-id="${user.id}" ><i
-                                      class="icon-base ti tabler-trash me-1"></i> Delete</button>
+                                      class="icon-base ti tabler-trash me-1"></i> <span data-i18n="common.delete">Delete</span></button>
                             </div>
                         </div>
                         </td>
@@ -172,6 +204,14 @@
                 `;
                         tbody.append(row);
                     });
+
+                    // Переводим динамически созданные элементы
+                    if (typeof i18next !== 'undefined') {
+                        tbody.find('[data-i18n]').each(function() {
+                            const key = $(this).attr('data-i18n');
+                            $(this).text(i18next.t(key));
+                        });
+                    }
                 }
 
                 function renderPagination(pageData) {
@@ -340,17 +380,25 @@
                     const userId = $(this).data('id');
 
                     $.ajax({
-                        url: `/users/${userId}`,
+                        url: window.contextPath + `/users/${userId}`,
                         type: 'DELETE',
                         success: function() {
                             $('#deleteConfirmModal').modal('hide');
-                            showToast('success', 'Успех', 'Пользователь успешно удален');
+                            if (typeof i18next !== 'undefined' && typeof showI18nToast === 'function') {
+                                showI18nToast('success', 'notifications.titles.success', 'users.deleteSuccess');
+                            } else {
+                                showToast('success', 'Success', 'User successfully deleted');
+                            }
                             loadUserTable();
                         },
                         error: function(xhr, status, error) {
-                            console.error('Ошибка удаления:', error);
+                            console.error('Delete error:', error);
                             $('#deleteConfirmModal').modal('hide');
-                            showToast('error', 'Ошибка', 'Не удалось удалить пользователя');
+                            if (typeof i18next !== 'undefined' && typeof showI18nToast === 'function') {
+                                showI18nToast('error', 'notifications.titles.error', 'users.deleteError');
+                            } else {
+                                showToast('error', 'Error', 'Failed to delete user');
+                            }
                         }
                     });
                 });

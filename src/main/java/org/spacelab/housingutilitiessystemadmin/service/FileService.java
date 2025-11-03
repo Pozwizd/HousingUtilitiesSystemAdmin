@@ -49,8 +49,9 @@ public class FileService {
         if (file.isEmpty()) {
             return null;
         }
+        createUploadDirectories();
         String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-        Path filePath = Paths.get(uploadDir +"/uploads/", fileName);
+        Path filePath = Paths.get(uploadDir, fileName);
         Files.copy(file.getInputStream(), filePath);
         return "uploads/" + fileName;
     }

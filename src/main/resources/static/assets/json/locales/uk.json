@@ -1,0 +1,379 @@
+{
+  "nav": {
+    "shortcuts": "Ярлики",
+    "addShortcuts": "Додати ярлики",
+    "notification": "Сповіщення",
+    "newNotifications": "{{count}} Нових",
+    "markAllRead": "Позначити всі як прочитані",
+    "viewAllNotifications": "Переглянути всі сповіщення",
+    "toggleTheme": "Перемкнути тему",
+    "light": "Світла",
+    "dark": "Темна",
+    "system": "Системна",
+    "admin": "Адміністратор",
+    "profile": "Профіль",
+    "logout": "Вийти"
+  },
+  "pages": {
+    "users": "Користувачі",
+    "houses": "Будинки",
+    "chairmen": "Голови",
+    "profile": "Профіль",
+    "dashboard": "Панель керування"
+  },
+  "common": {
+    "add": "Додати",
+    "edit": "Редагувати",
+    "delete": "Видалити",
+    "view": "Переглянути",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "close": "Закрити",
+    "clear": "Очистити",
+    "search": "Пошук",
+    "filter": "Фільтр",
+    "actions": "Дії",
+    "status": "Статус",
+    "saving": "Збереження...",
+    "loading": "Завантаження...",
+    "saveChanges": "Зберегти зміни",
+    "confirmDelete": "Підтвердження видалення",
+    "areYouSure": "Ви впевнені?",
+    "noDataFound": "Дані не знайдено",
+    "pagination": "Навігація по сторінках",
+    "validationFailed": "Помилка валідації"
+  },
+  "users": {
+    "title": "Користувачі",
+    "addUser": "Додати користувача",
+    "editUser": "Редагувати користувача",
+    "createUser": "Створити користувача",
+    "user": "Користувач",
+    "newUser": "Новий користувач",
+    "userProfile": "Профіль користувача",
+    "fullName": "ПІБ",
+    "firstName": "Ім'я",
+    "lastName": "Прізвище",
+    "middleName": "По батькові",
+    "city": "Місто",
+    "street": "Вулиця",
+    "house": "Будинок",
+    "apartment": "Квартира",
+    "apartmentNumber": "Номер квартири",
+    "apartmentArea": "Площа квартири",
+    "account": "Рахунок",
+    "accountNumber": "Особовий рахунок",
+    "phone": "Телефон",
+    "email": "Email",
+    "login": "Логін",
+    "password": "Пароль",
+    "repeatPassword": "Повторити пароль",
+    "address": "Адреса",
+    "houseNumber": "Номер будинку",
+    "personalAccount": "Особовий рахунок",
+    "contactInfo": "Контактна інформація",
+    "detailedInfo": "Детальна інформація",
+    "userBills": "Рахунки користувача",
+    "paymentHistory": "Історія платежів",
+    "period": "Період",
+    "amount": "Сума",
+    "date": "Дата",
+    "noBillsData": "Немає даних про рахунки",
+    "back": "Назад",
+    "uploadPhoto": "Завантажити фото",
+    "reset": "Скинути",
+    "allowedFormats": "Допустимі JPG, GIF або PNG. Максимальний розмір 800K",
+    "loginData": "Дані для входу",
+    "placeholders": {
+      "enterLastName": "Введіть прізвище",
+      "enterFirstName": "Введіть ім'я",
+      "enterMiddleName": "Введіть по батькові",
+      "enterPhone": "+380501234567",
+      "enterEmail": "example@domain.com",
+      "selectCity": "Виберіть місто",
+      "selectCityFirst": "Спочатку виберіть місто",
+      "selectStreet": "Виберіть вулицю",
+      "selectStreetFirst": "Спочатку виберіть вулицю",
+      "selectHouse": "Номер будинку",
+      "enterApartmentArea": "65.5",
+      "enterAccountNumber": "Номер особового рахунку",
+      "selectStatus": "Виберіть статус",
+      "enterLogin": "Введіть логін",
+      "enterPassword": "••••••••"
+    },
+    "deleteConfirm": "Ви впевнені, що хочете видалити цього користувача?",
+    "deleteSuccess": "Користувач успішно видалений",
+    "deleteError": "Не вдалося видалити користувача",
+    "notFound": "Користувачі не знайдені",
+    "validation": {
+      "passwordMismatch": "Паролі не співпадають",
+      "invalidFileType": "Недопустимий тип файлу. Дозволені тільки JPG, PNG та GIF",
+      "fileTooLarge": "Розмір файлу перевищує {{maxSize}}",
+      "required": "Це поле обов'язкове для заповнення",
+      "invalidEmail": "Введіть коректну email адресу",
+      "invalidPhone": "Введіть коректний номер телефону",
+      "firstName": {
+        "NotBlank": "Ім'я обов'язкове для заповнення",
+        "Size": "Ім'я має містити від 2 до 50 символів"
+      },
+      "middleName": {
+        "Size": "По батькові має містити менше 50 символів"
+      },
+      "lastName": {
+        "NotBlank": "Прізвище обов'язкове для заповнення",
+        "Size": "Прізвище має містити від 2 до 50 символів"
+      },
+      "phone": {
+        "NotBlank": "Номер телефону обов'язковий для заповнення"
+      },
+      "email": {
+        "NotBlank": "Email обов'язковий для заповнення",
+        "Email": "Email має бути коректним"
+      },
+      "login": {
+        "NotBlank": "Логін обов'язковий для заповнення",
+        "Size": "Логін має містити від 3 до 50 символів"
+      },
+      "cityId": {
+        "NotNull": "Місто обов'язкове для вибору"
+      },
+      "addressId": {
+        "NotNull": "Вулиця обов'язкова для вибору"
+      },
+      "houseId": {
+        "NotNull": "Будинок обов'язковий для вибору"
+      },
+      "houseNumber": {
+        "NotBlank": "Номер будинку обов'язковий для заповнення"
+      },
+      "apartmentNumber": {
+        "NotBlank": "Номер квартири обов'язковий для заповнення"
+      },
+      "apartmentArea": {
+        "NotNull": "Площа квартири обов'язкова для заповнення"
+      },
+      "accountNumber": {
+        "NotBlank": "Номер рахунку обов'язковий для заповнення"
+      },
+      "status": {
+        "NotBlank": "Статус обов'язковий для вибору"
+      },
+      "password": {
+        "NotBlank": "Пароль обов'язковий для заповнення",
+        "Size": "Пароль має містити мінімум 6 символів",
+        "notMatch": "Паролі не співпадають"
+      },
+      "confirmPassword": {
+        "NotBlank": "Підтвердження пароля обов'язкове"
+      }
+    },
+    "errors": {
+      "initialization": "Помилка ініціалізації сторінки",
+      "loadFailed": "Не вдалося завантажити дані користувача",
+      "loadStreets": "Не вдалося завантажити список вулиць",
+      "loadHouses": "Не вдалося завантажити список будинків",
+      "populateForm": "Помилка при заповненні форми",
+      "saveFailed": "Не вдалося зберегти дані",
+      "validation": "Перевірте правильність заповнення полів",
+      "loadData": "Помилка завантаження даних"
+    },
+    "success": {
+      "created": "Користувач {{userName}} успішно створений",
+      "updated": "Дані користувача {{userName}} успішно оновлені"
+    },
+    "statusOptions": {
+      "active": "Активний",
+      "inactive": "Неактивний",
+      "blocked": "Заблокований"
+    }
+  },
+  "houses": {
+    "title": "Будинки",
+    "addHouse": "Додати будинок",
+    "editHouse": "Редагувати будинок",
+    "createHouse": "Створити будинок",
+    "house": "Будинок",
+    "newHouse": "Новий будинок",
+    "houseProfile": "Профіль будинку",
+    "houseNumber": "Номер будинку",
+    "street": "Вулиця",
+    "city": "Місто",
+    "chairman": "Голова",
+    "address": "Адреса",
+    "chairmanInfo": "Інформація про голову",
+    "notAssigned": "Не призначено",
+    "residents": "Мешканці будинку",
+    "residentsList": "Список користувачів",
+    "noResidentsData": "Немає даних про мешканців",
+    "detailedInfo": "Детальна інформація",
+    "placeholders": {
+      "enterHouseNumber": "Введіть номер будинку",
+      "selectStreet": "Виберіть вулицю",
+      "selectChairman": "Виберіть голову",
+      "selectStatus": "Виберіть статус"
+    },
+    "deleteConfirm": "Ви впевнені, що хочете видалити цей будинок?",
+    "deleteSuccess": "Будинок успішно видалений",
+    "deleteError": "Не вдалося видалити будинок",
+    "notFound": "Будинки не знайдені",
+    "loadError": "Не вдалося завантажити дані будинків",
+    "statusOptions": {
+      "new": "Новий",
+      "active": "Активний",
+      "deactivated": "Деактивований",
+      "blocked": "Заблокований"
+    }
+  },
+  "chairmen": {
+    "title": "Голови",
+    "addChairman": "Додати голову",
+    "editChairman": "Редагувати голову",
+    "createChairman": "Створити голову",
+    "chairman": "Голова",
+    "newChairman": "Новий голова",
+    "chairmanProfile": "Профіль голови",
+    "fullName": "ПІБ",
+    "firstName": "Ім'я",
+    "lastName": "Прізвище",
+    "middleName": "По батькові",
+    "phone": "Телефон",
+    "email": "Email",
+    "login": "Логін",
+    "password": "Пароль",
+    "repeatPassword": "Повторити пароль",
+    "contactInfo": "Контактна інформація",
+    "detailedInfo": "Детальна інформація",
+    "uploadPhoto": "Завантажити фото",
+    "reset": "Скинути",
+    "allowedFormats": "Допустимі JPG, GIF або PNG. Максимальний розмір 800K",
+    "loginData": "Дані для входу",
+    "placeholders": {
+      "enterFirstName": "Введіть ім'я",
+      "enterLastName": "Введіть прізвище",
+      "enterMiddleName": "Введіть по батькові",
+      "enterPhone": "+380501234567",
+      "enterEmail": "example@domain.com",
+      "selectStatus": "Виберіть статус",
+      "enterLogin": "Введіть логін",
+      "enterPassword": "••••••••"
+    },
+    "deleteConfirm": "Ви впевнені, що хочете видалити цього голову?",
+    "deleteSuccess": "Голова успішно видалений",
+    "deleteError": "Не вдалося видалити голову",
+    "notFound": "Голови не знайдені",
+    "loadError": "Не вдалося завантажити дані голів",
+    "statusOptions": {
+      "new": "Новий",
+      "active": "Активний",
+      "deactivated": "Деактивований",
+      "blocked": "Заблокований"
+    }
+  },
+  "profile": {
+    "title": "Профіль адміністратора",
+    "settings": "Налаштування профілю",
+    "uploadPhoto": "Завантажити нове фото",
+    "reset": "Скинути",
+    "allowedFormats": "Допустимі JPG, GIF або PNG. Максимальний розмір 800K",
+    "username": "Ім'я користувача",
+    "email": "E-mail",
+    "emailReadonly": "Email не можна змінити",
+    "phone": "Телефон",
+    "organization": "Організація",
+    "address": "Адреса",
+    "city": "Місто",
+    "state": "Область / Регіон",
+    "zipCode": "Поштовий індекс",
+    "country": "Країна",
+    "selectCountry": "Виберіть країну",
+    "language": "Мова",
+    "selectLanguage": "Виберіть мову",
+    "timezone": "Часовий пояс",
+    "selectTimezone": "Виберіть часовий пояс",
+    "currency": "Валюта",
+    "selectCurrency": "Виберіть валюту",
+    "changePassword": "Змінити пароль",
+    "currentPassword": "Поточний пароль",
+    "newPassword": "Новий пароль",
+    "confirmPassword": "Підтвердіть пароль",
+    "enterCurrentPassword": "Введіть поточний пароль",
+    "enterNewPassword": "Введіть новий пароль",
+    "repeatNewPassword": "Повторіть новий пароль",
+    "enterUsername": "Введіть ім'я користувача",
+    "enterAddress": "Вулиця, будинок, квартира",
+    "enterCity": "Назва міста",
+    "enterState": "Область або регіон",
+    "profileUpdated": "Профіль успішно оновлено",
+    "passwordChanged": "Пароль успішно змінено",
+    "avatarUploaded": "Аватар успішно завантажено",
+    "avatarDeleted": "Аватар успішно видалено",
+    "deleteAvatarConfirm": "Ви впевнені, що хочете видалити аватар?",
+    "fileSizeError": "Розмір файлу не повинен перевищувати 800KB",
+    "onlyImages": "Допустимі тільки зображення",
+    "updateError": "Помилка при оновленні профілю",
+    "passwordChangeError": "Помилка при зміні пароля",
+    "avatarUploadError": "Помилка при завантаженні аватара",
+    "avatarDeleteError": "Помилка при видаленні аватара",
+    "loadError": "Помилка при завантаженні профілю",
+    "passwordMinLength": "Пароль повинен містити мінімум 6 символів",
+    "countries": {
+      "ukraine": "Україна",
+      "usa": "США",
+      "uk": "Великобританія",
+      "germany": "Німеччина",
+      "france": "Франція",
+      "poland": "Польща",
+      "canada": "Канада",
+      "australia": "Австралія"
+    },
+    "languages": {
+      "ukrainian": "Українська",
+      "russian": "Російська",
+      "english": "Англійська",
+      "german": "Німецька",
+      "french": "Французька",
+      "polish": "Польська"
+    }
+  },
+  "status": {
+    "new": "Новий",
+    "active": "Активний",
+    "deactivated": "Деактивований",
+    "blocked": "Заблокований"
+  },
+  "notifications": {
+    "titles": {
+      "error": "Помилка",
+      "success": "Успіх",
+      "warning": "Попередження",
+      "info": "Інформація"
+    }
+  },
+  "auth": {
+    "login": "Увійти",
+    "email": "Email",
+    "password": "Пароль",
+    "enterEmail": "Введіть email",
+    "enterPassword": "Введіть пароль",
+    "forgotPassword": "Забули пароль?",
+    "rememberMe": "Запам'ятати мене",
+    "signIn": "Увійти",
+    "signInWithGoogle": "Увійти через Google",
+    "invalidCredentials": "Невірний email або пароль",
+    "forgotPasswordTitle": "Забули пароль? 🔒",
+    "forgotPasswordDescription": "Введіть свій e-mail, і ми вишлемо вам інструкції по скиданню пароля",
+    "sendMessage": "Відправити повідомлення",
+    "backToLogin": "Назад до входу",
+    "newPassword": "Новий пароль",
+    "confirmPassword": "Підтвердіть пароль",
+    "saveNewPassword": "Зберегти новий пароль",
+    "wrongEmail": "Невірна пошта",
+    "fieldCannotBeEmpty": "Поле не може бути порожнім",
+    "wrongPassword": "Невірний пароль",
+    "passwordsDoNotMatch": "Паролі не співпадають"
+  },
+  "errors": {
+    "asyncOperationFailed": "Помилка асинхронної операції",
+    "internalServerError": "Внутрішня помилка сервера"
+  }
+}

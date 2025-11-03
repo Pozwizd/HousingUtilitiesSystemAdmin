@@ -26,7 +26,7 @@ public class AdminService {
     public Admin createAdmin(String email, String password) {
         Admin admin = new Admin();
         admin.setEmail(email);
-        admin.setPassword(password);
+        admin.setPassword(passwordEncoder.encode(password));
         admin.setEnabled(true);
 
         return adminRepository.save(admin);

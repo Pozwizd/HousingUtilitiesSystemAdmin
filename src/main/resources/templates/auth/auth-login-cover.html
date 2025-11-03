@@ -128,18 +128,18 @@
             <h4 class="mb-1">Welcome to Vuexy! 👋</h4>
             <p class="mb-6">Please sign-in to your account and start the adventure</p>
 
-            <form id="formAuthentication" class="mb-6" th:action = "@{/login}" method="post">
+            <form id="formAuthentication" class="mb-6" th:action = "@{/perform-login}" method="post">
               <div th:if="${param.error}" class="text-danger text-center">
                 Неверный email или пароль
               </div>
               <div class="mb-6 form-control-validation">
-                <label for="email" class="form-label">Email or Username</label>
+                <label for="email" class="form-label">Email</label>
                 <input
-                  type="text"
+                  type="email"
                   class="form-control"
                   id="email"
-                  name="username"
-                  placeholder="Enter your email or username"
+                  name="email"
+                  placeholder="Enter your email"
                   autofocus />
               </div>
               <div class="mb-6 form-password-toggle form-control-validation">
@@ -156,11 +156,7 @@
                 </div>
               </div>
               <div class="my-8">
-                <div class="d-flex justify-content-between">
-                  <div class="form-check mb-0 ms-2">
-                    <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me"/>
-                    <label class="form-check-label" for="remember-me"> Remember Me </label>
-                  </div>
+                <div class="d-flex justify-content-end">
                   <a href="auth-forgot-password-cover.html">
                     <p class="mb-0">Forgot Password?</p>
                   </a>

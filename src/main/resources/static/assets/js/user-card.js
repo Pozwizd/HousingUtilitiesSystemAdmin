@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     // Edit button
     if (editUserBtn) {
       editUserBtn.addEventListener('click', function() {
-        window.location.href = `/admin/users/edit/${userId}`;
+        window.location.href = (window.contextPath || '') + `users/edit/${userId}`;
       });
     }
 
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     try {
       showLoading();
 
-      const response = await fetch(`/admin/users/getUser/${userId}`);
+      const response = await fetch((window.contextPath || '') + `users/getUser/${userId}`);
       
       if (response.ok) {
         currentUser = await response.json();
@@ -97,8 +97,14 @@ document.addEventListener('DOMContentLoaded', function (e) {
   function populateUserData(user) {
     try {
       // Avatar
-      if (user.photo) {
-        userAvatar.src = user.photo;
+      if (user.photo && user.photo.trim() !== '' && user.photo !== 'default_photo.jpg') {
+        if (user.photo.startsWith('http')) {
+          userAvatar.src = user.photo;
+        } else {
+          userAvatar.src = (window.contextPath || '') + '/' + user.photo;
+        }
+      } else {
+        userAvatar.src = (window.contextPath || '') + '/assets/img/avatars/1.png';
       }
 
       // Full name and status
@@ -231,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
       if (result.isConfirmed) {
         try {
-          const response = await fetch(`/admin/users/${userId}`, {
+          const response = await fetch((window.contextPath || '') + `users/${userId}`, {
             method: 'DELETE'
           });
 
@@ -245,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               },
               buttonsStyling: false
             }).then(() => {
-              window.location.href = '/admin/users';
+              window.location.href = (window.contextPath || '') + '/users';
             });
           } else {
             throw new Error('Ошибка при удалении пользователя');
@@ -266,13 +272,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
     } else {
       if (confirm(`Удалить пользователя "${currentUser.fullName || currentUser.email}"?`)) {
         try {
-          const response = await fetch(`/admin/users/${userId}`, {
+          const response = await fetch((window.contextPath || '') + `users/${userId}`, {
             method: 'DELETE'
           });
 
           if (response.ok) {
             alert('Пользователь удален успешно');
-            window.location.href = '/admin/users';
+            window.location.href = (window.contextPath || '') + '/users';
           } else {
             throw new Error('Ошибка при удалении');
           }

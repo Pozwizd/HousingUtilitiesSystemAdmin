@@ -1,7 +1,9 @@
 package org.spacelab.housingutilitiessystemadmin.config;
 
 import com.mongodb.bulk.BulkWriteResult;
+import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
+import org.spacelab.housingutilitiessystemadmin.config.database.MongoBulkConfig;
 import org.spacelab.housingutilitiessystemadmin.entity.*;
 import org.spacelab.housingutilitiessystemadmin.entity.location.*;
 import org.spacelab.housingutilitiessystemadmin.service.*;
@@ -24,47 +26,29 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class DataLoader {
 
+    private final Faker faker;
+
+    private final AdminService adminService;
+
     private final UserService userService;
+
     private final RegionService regionService;
+
     private final ChairmanService chairmanService;
     private final ContactService contactService;
     private final ContactSectionService contactSectionService;
     private final BillService billService;
     private final VoteService voteService;
-    private final AdminService adminService;
+
     private final MongoBulkConfig mongoBulkConfig;
     private final MongoTemplate mongoTemplate;
 
-    public DataLoader(UserService userService,
-                      RegionService regionService,
-                      ChairmanService chairmanService,
-                      ContactService contactService,
-                      ContactSectionService contactSectionService,
-                      BillService billService,
-                      VoteService voteService,
-                      AdminService adminService,
-                      MongoBulkConfig mongoBulkConfig,
-                      MongoTemplate mongoTemplate) {
-        this.userService = userService;
-        this.regionService = regionService;
-        this.chairmanService = chairmanService;
-        this.contactService = contactService;
-        this.contactSectionService = contactSectionService;
-        this.billService = billService;
-        this.voteService = voteService;
-        this.adminService = adminService;
-        this.mongoBulkConfig = mongoBulkConfig;
-        this.mongoTemplate = mongoTemplate;
-    }
-
     @EventListener(ApplicationReadyEvent.class)
     public void loadData() {
-        Faker faker = new Faker(new Locale("ru"));
-
         clearAllData();
-
         adminService.createAdmin("admin@gmail.com", "admin@gmail.com");
 
         loadDataFromCsv();
@@ -75,6 +59,8 @@ public class DataLoader {
 
         List<User> users = createUsers(faker);
         mongoBulkConfig.bulkInsert(users, User.class);
+
+        assignResidentsToHouses(users);
 
         List<Bill> bills = createBills(faker);
         mongoBulkConfig.bulkInsert(bills, Bill.class);
@@ -399,6 +385,47 @@ public class DataLoader {
         }
     }
 
+    private void assignResidentsToHouses(List<User> users) {
+        List<Region> regions = regionService.findAll();
+        List<Region> regionsToUpdate = new ArrayList<>();
+        Map<String, List<User>> usersByHouseId = new HashMap<>();
+        
+        // Group users by house ID
+        for (User user : users) {
+            if (user.getHouse() != null && user.getHouse().getId() != null) {
+                usersByHouseId.computeIfAbsent(user.getHouse().getId(), k -> new ArrayList<>()).add(user);
+            }
+        }
+        
+        int houseCount = 0;
+        int residentCount = 0;
+        
+        for (Region region : regions) {
+            boolean regionUpdated = false;
+            for (City city : region.getCities()) {
+                for (Street street : city.getStreets()) {
+                    for (House house : street.getHouses()) {
+                        List<User> houseResidents = usersByHouseId.get(house.getId());
+                        if (houseResidents != null && !houseResidents.isEmpty()) {
+                            house.setResidents(houseResidents);
+                            houseCount++;
+                            residentCount += houseResidents.size();
+                            regionUpdated = true;
+                        }
+                    }
+                }
+            }
+            if (regionUpdated) {
+                regionsToUpdate.add(region);
+            }
+        }
+        
+        if (!regionsToUpdate.isEmpty()) {
+            mongoBulkConfig.bulkUpsert(regionsToUpdate, Region.class);
+            System.out.println("Bulk assigned " + residentCount + " residents to " + houseCount + " houses");
+        }
+    }
+
 
     private List<Chairman> createChairmen(Faker faker) {
         List<Chairman> chairmen = new ArrayList<>();
@@ -410,7 +437,7 @@ public class DataLoader {
             chairman.setMiddleName(faker.name().nameWithMiddle().split(" ")[1]);
             chairman.setPhone(faker.phoneNumber().phoneNumber());
             chairman.setEmail(faker.internet().emailAddress());
-            chairman.setStatus(faker.options().option("active", "inactive"));
+            chairman.setStatus(getRandomEnum(Status.class));
             chairman.setLogin(faker.internet().username());
             chairman.setPassword(faker.internet().password());
 

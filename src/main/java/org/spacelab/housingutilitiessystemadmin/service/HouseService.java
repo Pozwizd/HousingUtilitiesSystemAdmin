@@ -16,12 +16,10 @@ import org.spacelab.housingutilitiessystemadmin.models.location.HouseResponseTab
 import org.spacelab.housingutilitiessystemadmin.repository.HouseRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -166,32 +164,5 @@ public class HouseService {
             return findByStreetId(streetId);
         }
         return houseMapper.toResponseList(houseRepository.findByStreetIdAndHouseNumberContainingIgnoreCase(streetId, number.trim()));
-    }
-
-    @Async
-    public CompletableFuture<HouseResponse> findByIdAsync(String id) {
-        return CompletableFuture.completedFuture(findById(id)).thenApply(houseOpt -> {
-            if (houseOpt.isEmpty()) {
-                throw new OperationException("получении дома",
-                        "Дом с ID " + id + " не найден", HttpStatus.NOT_FOUND);
-            }
-            return houseMapper.mapHouseToResponse(houseOpt.get());
-        });
-    }
-
-    @Async
-    public CompletableFuture<HouseResponse> createHouseAsync(@Valid HouseRequest houseRequest) {
-        return CompletableFuture.completedFuture(createHouse(houseRequest));
-    }
-
-    @Async
-    public CompletableFuture<HouseResponse> updateHouseAsync(@Valid HouseRequest houseRequest) {
-        return CompletableFuture.completedFuture(updateHouse(houseRequest.getId(), houseRequest));
-    }
-
-    @Async
-    public CompletableFuture<Boolean> deleteByIdAsync(String id) {
-        Boolean deleted = deleteHouse(id);
-        return CompletableFuture.completedFuture(deleted);
     }
 }

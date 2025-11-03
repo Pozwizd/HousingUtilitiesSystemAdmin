@@ -3,7 +3,7 @@
       layout:decorate="~{template/layout.html}">
 
 <head>
-    <title>Председатели</title>
+    <title data-i18n="chairmen.title">Председатели</title>
     <th:block layout:fragment="page_css">
 
     </th:block>
@@ -14,7 +14,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card mb-6">
-                <h5 class="card-header">Новый председатель</h5>
+                <h5 class="card-header" id="pageTitle" data-i18n="chairmen.newChairman">Новый председатель</h5>
                 <form id="formAccountSettings" enctype="multipart/form-data">
                     <!-- Account -->
                     <div class="card-body">
@@ -26,7 +26,7 @@
                                     id="uploadedAvatar"/>
                             <div class="button-wrapper">
                                 <label for="photo" class="btn btn-primary me-3 mb-4" tabindex="0">
-                                    <span class="d-none d-sm-block">Загрузить фото</span>
+                                    <span class="d-none d-sm-block" data-i18n="users.uploadPhoto">Загрузить фото</span>
                                     <i class="icon-base ti tabler-upload d-block d-sm-none"></i>
                                     <input
                                             type="file"
@@ -38,10 +38,10 @@
                                 </label>
                                 <button type="button" class="btn btn-label-secondary account-image-reset mb-4">
                                     <i class="icon-base ti tabler-reset d-block d-sm-none"></i>
-                                    <span class="d-none d-sm-block">Сбросить</span>
+                                    <span class="d-none d-sm-block" data-i18n="users.reset">Сбросить</span>
                                 </button>
 
-                                <div>Разрешены JPG, GIF или PNG. Максимальный размер 800K</div>
+                                <div data-i18n="users.allowedFormats">Разрешены JPG, GIF или PNG. Максимальный размер 800K</div>
                             </div>
                         </div>
                     </div>
@@ -51,23 +51,25 @@
                             <div class="row gy-4 gx-6 mb-3">
                                 <!-- Фамилия -->
                                 <div class="col-md-6">
-                                    <label for="lastName" class="form-label">Фамилия <span
+                                    <label for="lastName" class="form-label"><span data-i18n="users.lastName">Фамилия</span> <span
                                             class="text-danger">*</span></label>
                                     <input class="form-control"
                                            type="text"
                                            name="lastName"
                                            id="lastName"
+                                           data-i18n="[placeholder]users.placeholders.enterLastName"
                                            placeholder="Введите фамилию"/>
                                     <div class="invalid-feedback"></div>
                                 </div>
 
                                 <!-- Имя -->
                                 <div class="col-md-6">
-                                    <label for="firstName" class="form-label">Имя <span class="text-danger">*</span></label>
+                                    <label for="firstName" class="form-label"><span data-i18n="users.firstName">Имя</span> <span class="text-danger">*</span></label>
                                     <input class="form-control"
                                            type="text"
                                            name="firstName"
                                            id="firstName"
+                                           data-i18n="[placeholder]users.placeholders.enterFirstName"
                                            placeholder="Введите имя"
                                            autofocus/>
                                     <div class="invalid-feedback"></div>
@@ -75,46 +77,45 @@
 
                                 <!-- Отчество -->
                                 <div class="col-md-6">
-                                    <label for="middleName" class="form-label">Отчество</label>
+                                    <label for="middleName" class="form-label" data-i18n="users.middleName">Отчество</label>
                                     <input class="form-control"
                                            type="text"
                                            name="middleName"
                                            id="middleName"
+                                           data-i18n="[placeholder]users.placeholders.enterMiddleName"
                                            placeholder="Введите отчество"/>
                                     <div class="invalid-feedback"></div>
                                 </div>
 
                                 <!-- Телефон -->
                                 <div class="col-md-6">
-                                    <label class="form-label" for="phone">Телефон <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="phone"><span data-i18n="users.phone">Телефон</span> <span class="text-danger">*</span></label>
                                     <input type="tel"
                                            name="phone"
                                            id="phone"
                                            class="form-control"
+                                           data-i18n="[placeholder]users.placeholders.enterPhone"
                                            placeholder="+380501234567"/>
                                     <div class="invalid-feedback"></div>
                                 </div>
 
                                 <!-- Email -->
                                 <div class="col-md-6">
-                                    <label for="email" class="form-label">E-mail <span class="text-danger">*</span></label>
+                                    <label for="email" class="form-label"><span data-i18n="users.email">E-mail</span> <span class="text-danger">*</span></label>
                                     <input class="form-control"
                                            type="text"
                                            name="email"
                                            id="email"
+                                           data-i18n="[placeholder]users.placeholders.enterEmail"
                                            placeholder="example@domain.com"/>
                                     <div class="invalid-feedback"></div>
                                 </div>
 
                                 <!-- Статус -->
                                 <div class="col-md-6">
-                                    <label for="status" class="form-label">Статус <span class="text-danger">*</span></label>
+                                    <label for="status" class="form-label"><span data-i18n="common.status">Статус</span> <span class="text-danger">*</span></label>
                                     <select name="status" id="status" class="form-select">
-                                        <option value="">Выберите статус</option>
-                                        <option value="NEW">Новый</option>
-                                        <option value="ACTIVE">Активный</option>
-                                        <option value="DEACTIVATED">Деактивирован</option>
-                                        <option value="BLOCKED">Заблокирован</option>
+                                        <option value="" data-i18n="chairmen.placeholders.selectStatus">Выберите статус</option>
                                     </select>
                                     <div class="invalid-feedback"></div>
                                 </div>
@@ -122,37 +123,40 @@
                             <hr class="my-12"/>
                             <!-- Секция: Данные для входа -->
                             <div class="form-section">
-                                <h6>Данные для входа</h6>
+                                <h6 data-i18n="users.loginData">Данные для входа</h6>
                                 <div class="row g-4">
                                     <div class="col-md-4">
-                                        <label for="login" class="form-label">Логин <span
+                                        <label for="login" class="form-label"><span data-i18n="users.login">Логин</span> <span
                                                 class="text-danger">*</span></label>
                                         <input class="form-control"
                                                type="text"
                                                name="login"
                                                id="login"
+                                               data-i18n="[placeholder]users.placeholders.enterLogin"
                                                placeholder="Введите логин"/>
                                         <div class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-4">
-                                        <label for="password" class="form-label">Пароль <span
+                                        <label for="password" class="form-label"><span data-i18n="users.password">Пароль</span> <span
                                                 class="text-danger">*</span></label>
                                         <input class="form-control"
                                                type="password"
                                                name="password"
                                                id="password"
+                                               data-i18n="[placeholder]users.placeholders.enterPassword"
                                                placeholder="••••••••"/>
                                         <div class="invalid-feedback"></div>
                                     </div>
 
                                     <div class="col-md-4">
-                                        <label for="repeatPassword" class="form-label">Повторить пароль <span
+                                        <label for="repeatPassword" class="form-label"><span data-i18n="users.repeatPassword">Повторить пароль</span> <span
                                                 class="text-danger">*</span></label>
                                         <input class="form-control"
                                                type="password"
                                                name="repeatPassword"
                                                id="repeatPassword"
+                                               data-i18n="[placeholder]users.placeholders.enterPassword"
                                                placeholder="••••••••"/>
                                         <div class="invalid-feedback"></div>
                                     </div>
@@ -161,8 +165,8 @@
 
 
                             <div class="mt-10">
-                                <button type="submit" class="btn btn-primary me-3">Сохранить изменения</button>
-                                <button type="reset" class="btn btn-label-secondary">Отмена</button>
+                                <button type="submit" class="btn btn-primary me-3" data-i18n="common.saveChanges">Сохранить изменения</button>
+                                <button type="reset" class="btn btn-label-secondary" data-i18n="common.cancel">Отмена</button>
                             </div>
 
                     </div>
@@ -177,12 +181,38 @@
 <div>
     <th:block layout:fragment="page_js">
         <script th:inline="javascript">
-            window.contextPath = '[[@{/}]]'.replaceAll('"', '');
+            window.contextPath = '[[@{/}]]'.replaceAll('"', '').replace(/\/$/, '');
             window.defaultAvatarPath = '[[@{/assets/img/avatars/14.png}]]';
             console.log(window.defaultAvatarPath);
         </script>
 
         <script>
+            // Переводим статические элементы после загрузки i18next
+            function translateElements() {
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (key.startsWith('[placeholder]')) {
+                        const placeholderKey = key.replace('[placeholder]', '');
+                        element.placeholder = i18next.t(placeholderKey);
+                    } else if (key.startsWith('[aria-label]')) {
+                        const ariaKey = key.replace('[aria-label]', '');
+                        element.setAttribute('aria-label', i18next.t(ariaKey));
+                    } else {
+                        element.textContent = i18next.t(key);
+                    }
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof i18next !== 'undefined') {
+                    i18next.on('initialized', translateElements);
+                    i18next.on('languageChanged', translateElements);
+                    if (i18next.isInitialized) {
+                        translateElements();
+                    }
+                }
+            });
+
             $(document).ready(function () {
                 // Variables
                 let isEditMode = false;
@@ -225,6 +255,13 @@
                         // Setup event listeners
                         setupEventListeners();
 
+                        // Слушатель смены языка для обновления меток статусов
+                        if (typeof i18next !== 'undefined') {
+                            i18next.on('languageChanged', function() {
+                                updateStatusLabels();
+                            });
+                        }
+
                         // If edit mode, populate form
                         if (isEditMode && currentChairman) {
                             await populateForm(currentChairman);
@@ -238,7 +275,7 @@
 
                 async function loadChairmanData() {
                     try {
-                        const response = await fetch(`/chairmen/getChairman/${chairmanId}`);
+                        const response = await fetch(window.contextPath + `/chairmen/getChairman/${chairmanId}`);
                         if (response.ok) {
                             currentChairman = await response.json();
                         } else {
@@ -252,7 +289,7 @@
 
                 async function loadStatuses() {
                     try {
-                        const response = await fetch('/chairmen/getStatuses');
+                        const response = await fetch(window.contextPath + '/chairmen/getStatuses');
                         if (response.ok) {
                             const statuses = await response.json();
                             populateStatusSelect(statuses);
@@ -264,9 +301,23 @@
 
                 function populateStatusSelect(statuses) {
                     const statusSelect = fields.status;
-                    statusSelect.innerHTML = '<option value="">Выберите статус</option>';
+                    
+                    // Получаем placeholder с учетом i18n
+                    const placeholderText = typeof i18next !== 'undefined' 
+                        ? i18next.t('chairmen.placeholders.selectStatus')
+                        : 'Выберите статус';
+                    statusSelect.innerHTML = `<option value="">${placeholderText}</option>`;
 
-                    const statusLabels = {
+                    // Маппинг статусов на i18n ключи
+                    const statusI18nKeys = {
+                        'NEW': 'chairmen.statusOptions.new',
+                        'ACTIVE': 'chairmen.statusOptions.active',
+                        'DEACTIVATED': 'chairmen.statusOptions.deactivated',
+                        'BLOCKED': 'chairmen.statusOptions.blocked'
+                    };
+
+                    // Fallback значения на случай отсутствия i18n
+                    const statusFallbacks = {
                         'NEW': 'Новый',
                         'ACTIVE': 'Активный',
                         'DEACTIVATED': 'Деактивирован',
@@ -276,9 +327,37 @@
                     statuses.forEach(status => {
                         const option = document.createElement('option');
                         option.value = status;
-                        option.textContent = statusLabels[status] || status;
+                        
+                        // Используем i18n если доступен, иначе fallback
+                        if (typeof i18next !== 'undefined' && statusI18nKeys[status]) {
+                            option.textContent = i18next.t(statusI18nKeys[status]);
+                            option.setAttribute('data-i18n', statusI18nKeys[status]);
+                        } else {
+                            option.textContent = statusFallbacks[status] || status;
+                        }
+                        
                         statusSelect.appendChild(option);
                     });
+                }
+
+                function updateStatusLabels() {
+                    if (typeof i18next === 'undefined') return;
+
+                    const statusSelect = fields.status;
+                    const currentValue = statusSelect.value;
+
+                    // Обновляем все опции с data-i18n атрибутом
+                    Array.from(statusSelect.options).forEach(option => {
+                        const i18nKey = option.getAttribute('data-i18n');
+                        if (i18nKey) {
+                            option.textContent = i18next.t(i18nKey);
+                        }
+                    });
+
+                    // Восстанавливаем выбранное значение
+                    if (currentValue) {
+                        statusSelect.value = currentValue;
+                    }
                 }
 
                 async function populateForm(chairman) {
@@ -300,12 +379,12 @@
                         // Обработка аватара
                         if (chairman.photo && chairman.photo.trim() !== '' && chairman.photo !== 'default_photo.jpg') {
                             if (chairman.photo.startsWith('http') || chairman.photo.startsWith('/')) {
-                                avatarImg.src = "/" + chairman.photo;
+                                avatarImg.src = (window.contextPath || '') + '/' + chairman.photo;
                             } else {
-                                avatarImg.src = "/" + chairman.photo;
+                                avatarImg.src = (window.contextPath || '') + '/' + chairman.photo;
                             }
                         } else {
-                            avatarImg.src = '/assets/img/avatars/1.png';
+                            avatarImg.src = (window.contextPath || '') + '/assets/img/avatars/1.png';
                         }
 
                         console.log('Form populated successfully');
@@ -360,7 +439,7 @@
                         }
 
                         // API endpoint and method
-                        const url = isEditMode ? `/chairmen/${chairmanId}` : '/chairmen/create';
+                        const url = isEditMode ? window.contextPath + `/chairmen/${chairmanId}` : window.contextPath + '/chairmen/create';
                         const method = isEditMode ? 'PUT' : 'POST';
 
                         console.log(`Sending ${method} request to ${url}`);
@@ -380,7 +459,7 @@
 
                             // Redirect to chairman list
                             setTimeout(() => {
-                                window.location.href = '/chairmen';
+                                window.location.href = window.contextPath + '/chairmen';
                             }, 1500);
                         } else {
                             const errorData = await response.json();
@@ -459,7 +538,7 @@
                 }
 
                 function resetAvatar() {
-                    avatarImg.src = '/assets/img/avatars/1.png';
+                    avatarImg.src = (window.contextPath || '') + '/assets/img/avatars/1.png';
                     if (fileInput) {
                         fileInput.value = '';
                     }

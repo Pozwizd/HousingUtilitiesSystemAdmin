@@ -19,17 +19,19 @@ public class PasswordMatchesValidator implements ConstraintValidator<PasswordMat
         String password = userRequest.getPassword();
         String confirmPassword = userRequest.getConfirmPassword();
 
-        // If both are null or empty, consider it valid (other validators will handle required fields)
-        if ((password == null || password.isEmpty()) && (confirmPassword == null || confirmPassword.isEmpty())) {
+        // Если оба поля пустые, считаем валидацию пройденной
+        // (ConditionalPasswordRequiredValidator проверит, нужен ли пароль)
+        if ((password == null || password.trim().isEmpty()) && 
+            (confirmPassword == null || confirmPassword.trim().isEmpty())) {
             return true;
         }
 
-        // Check if passwords match
+        // Если хотя бы одно поле заполнено, проверяем совпадение
         boolean isValid = password != null && password.equals(confirmPassword);
 
         if (!isValid) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("Пароли не совпадают")
+            context.buildConstraintViolationWithTemplate("users.validation.password.notMatch")
                     .addPropertyNode("confirmPassword")
                     .addConstraintViolation();
         }

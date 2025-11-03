@@ -15,7 +15,7 @@ spring:
 server:
   port: 8080
   servlet:
-    context-path: /
+    context-path: /admin
     encoding:
       charset: UTF-8
       enabled: true
@@ -33,7 +33,8 @@ file:
 
 jwt:
   secret: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855
-  expiration: 86400000 # 24 часа
+  expiration: 900000 # 15 минут
+  refresh-expiration: 604800000 # 7 дней
 
 # Профили:
 # - dev: Локальная разработка (application-dev.yml)

@@ -356,7 +356,6 @@
         }
       },
 
-      colors: [config.colors.primary, config.colors.secondary],
       dataLabels: {
         enabled: false
       },
@@ -548,7 +547,7 @@
           orderable: false,
           searchable: false,
           responsivePriority: 3,
-          checkboxes: true,
+          // checkboxes: true,
           render: function () {
             return '<input type="checkbox" class="dt-checkboxes form-check-input">';
           },

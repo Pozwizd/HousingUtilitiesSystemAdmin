@@ -3,12 +3,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.5</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>org.spacelab</groupId>
+        <artifactId>HousingUtilitiesSystem</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>org.spacelab</groupId>
     <artifactId>HousingUtilitiesSystemAdmin</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>HousingUtilitiesSystemAdmin</name>
@@ -31,35 +30,12 @@
         <mapstruct.version>1.6.3</mapstruct.version>
     </properties>
     <dependencies>
-        <!--        <dependency>-->
-        <!--            <groupId>org.thymeleaf.extras</groupId>-->
-        <!--            <artifactId>thymeleaf-extras-springsecurity6</artifactId>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>io.micrometer</groupId>-->
-        <!--            <artifactId>micrometer-registry-prometheus</artifactId>-->
-        <!--            <scope>runtime</scope>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.amqp</groupId>-->
-        <!--            <artifactId>spring-rabbit-test</artifactId>-->
-        <!--            <scope>test</scope>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.thymeleaf.extras</groupId>-->
-        <!--            <artifactId>thymeleaf-extras-springsecurity6</artifactId>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>io.micrometer</groupId>-->
-        <!--            <artifactId>micrometer-registry-prometheus</artifactId>-->
-        <!--            <scope>runtime</scope>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.amqp</groupId>-->
-        <!--            <artifactId>spring-rabbit-test</artifactId>-->
-        <!--            <scope>test</scope>-->
-        <!--        </dependency>-->
-
+        <!-- https://mvnrepository.com/artifact/com.sendgrid/sendgrid-java -->
+        <dependency>
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>4.10.3</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -85,8 +61,12 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
         </dependency>
         <dependency>
             <groupId>nz.net.ultraq.thymeleaf</groupId>
@@ -117,6 +97,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

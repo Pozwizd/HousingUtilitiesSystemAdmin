@@ -3,7 +3,7 @@
       layout:decorate="~{template/layout.html}">
 
 <head>
-    <title>Профиль дома</title>
+    <title data-i18n="houses.houseProfile">Профиль дома</title>
     <th:block layout:fragment="page_css">
     </th:block>
 </head>
@@ -16,16 +16,16 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="d-flex align-items-center">
                     <button type="button" class="btn btn-label-secondary me-3" onclick="window.history.back()">
-                        <i class="ti ti-arrow-left me-1"></i> Назад
+                        <i class="icon-base ti tabler-arrow-left me-1"></i> <span data-i18n="common.back">Назад</span>
                     </button>
-                    <h4 class="mb-0">Профиль дома</h4>
+                    <h4 class="mb-0" data-i18n="houses.houseProfile">Профиль дома</h4>
                 </div>
                 <div class="d-flex gap-2">
                     <button type="button" id="editHouseBtn" class="btn btn-primary">
-                        <i class="ti ti-edit me-1"></i> Редактировать
+                        <i class="icon-base ti tabler-edit me-1"></i> <span data-i18n="common.edit">Редактировать</span>
                     </button>
                     <button type="button" id="deleteHouseBtn" class="btn btn-danger">
-                        <i class="ti ti-trash me-1"></i> Удалить
+                        <i class="icon-base ti tabler-trash me-1"></i> <span data-i18n="common.delete">Удалить</span>
                     </button>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                             <div class="user-avatar-section">
                                 <div class="d-flex align-items-center flex-column">
                                     <div class="user-info text-center">
-                                        <h4 class="mb-2" id="houseNumber">Загрузка...</h4>
+                                        <h4 class="mb-2" id="houseNumber" data-i18n="common.loading">Загрузка...</h4>
                                         <span class="badge" id="houseStatus">-</span>
                                     </div>
                                 </div>
@@ -46,19 +46,19 @@
                             <div class="d-flex justify-content-around flex-wrap mt-4 pt-3 pb-4 border-bottom">
                                 <div class="d-flex align-items-start me-4 mt-3 gap-2">
                                     <span class="badge bg-label-primary p-2 rounded">
-                                        <i class="ti ti-map-pin ti-sm"></i>
+                                        <i class="icon-base ti tabler-map-pin ti-sm"></i>
                                     </span>
                                     <div>
-                                        <p class="mb-0 fw-medium">Адрес</p>
+                                        <p class="mb-0 fw-medium" data-i18n="houses.address">Адрес</p>
                                         <small id="houseAddress">-</small>
                                     </div>
                                 </div>
                             </div>
-                            <p class="mt-4 small text-uppercase text-muted">Информация о председателе</p>
+                            <p class="mt-4 small text-uppercase text-muted" data-i18n="houses.chairmanInfo">Информация о председателе</p>
                             <div class="info-container">
                                 <ul class="list-unstyled mb-4">
                                     <li class="mb-2 pt-1">
-                                        <span class="fw-medium me-1">Председатель:</span>
+                                        <span class="fw-medium me-1" data-i18n="houses.chairmanLabel">Председатель:</span>
                                         <span id="houseChairman">-</span>
                                     </li>
                                 </ul>
@@ -71,24 +71,24 @@
                 <div class="col-xl-8 col-lg-7 col-md-7">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5 class="mb-0">Подробная информация</h5>
+                            <h5 class="mb-0" data-i18n="houses.detailedInfo">Подробная информация</h5>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-medium">Номер дома</label>
+                                    <label class="form-label fw-medium" data-i18n="houses.houseNumber">Номер дома</label>
                                     <p id="houseNumberDetail" class="form-control-plaintext">-</p>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-medium">Улица</label>
+                                    <label class="form-label fw-medium" data-i18n="houses.street">Улица</label>
                                     <p id="houseStreet" class="form-control-plaintext">-</p>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-medium">Город</label>
+                                    <label class="form-label fw-medium" data-i18n="houses.city">Город</label>
                                     <p id="houseCity" class="form-control-plaintext">-</p>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-medium">Статус</label>
+                                    <label class="form-label fw-medium" data-i18n="common.status">Статус</label>
                                     <p id="houseStatusDetail" class="form-control-plaintext">-</p>
                                 </div>
                             </div>
@@ -98,25 +98,25 @@
                     <!-- Users in House Card -->
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Жильцы дома</h5>
-                            <small class="text-muted">Список пользователей</small>
+                            <h5 class="mb-0" data-i18n="houses.residents">Жильцы дома</h5>
+                            <small class="text-muted" data-i18n="houses.residentsList">Список пользователей</small>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>ФИО</th>
-                                            <th>Квартира</th>
-                                            <th>Телефон</th>
-                                            <th>Email</th>
+                                            <th data-i18n="users.fullName">ФИО</th>
+                                            <th data-i18n="users.apartment">Квартира</th>
+                                            <th data-i18n="users.phone">Телефон</th>
+                                            <th data-i18n="users.email">Email</th>
                                         </tr>
                                     </thead>
                                     <tbody id="usersTableBody">
                                         <tr>
                                             <td colspan="4" class="text-center text-muted">
-                                                <i class="ti ti-users ti-sm me-1"></i>
-                                                Нет данных о жильцах
+                                                <i class="icon-base ti tabler-users ti-sm me-1"></i>
+                                                <span data-i18n="houses.noResidentsData">Нет данных о жильцах</span>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -134,15 +134,15 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Подтверждение удаления</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    <h5 class="modal-title" data-i18n="common.confirmDelete">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" data-i18n="[aria-label]common.close" aria-label="Закрыть"></button>
                 </div>
                 <div class="modal-body">
-                    <span>Вы уверены, что хотите удалить этот дом?</span>
+                    <span data-i18n="houses.deleteConfirm">Вы уверены, что хотите удалить этот дом?</span>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Отменить</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Удалить</button>
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal" data-i18n="common.cancel">Отменить</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn" data-i18n="common.delete">Удалить</button>
                 </div>
             </div>
         </div>
@@ -150,8 +150,35 @@
 </div>
 
 <th:block layout:fragment="page_js">
+    <script th:inline="javascript">
+        window.contextPath = '[[@{/}]]'.replaceAll('"', '').replace(/\/$/, '');
+    </script>
     <script>
+        // Переводим статические элементы после загрузки i18next
+        function translateElements() {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (key.startsWith('[placeholder]')) {
+                    const placeholderKey = key.replace('[placeholder]', '');
+                    element.placeholder = i18next.t(placeholderKey);
+                } else if (key.startsWith('[aria-label]')) {
+                    const ariaKey = key.replace('[aria-label]', '');
+                    element.setAttribute('aria-label', i18next.t(ariaKey));
+                } else {
+                    element.textContent = i18next.t(key);
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            if (typeof i18next !== 'undefined') {
+                i18next.on('initialized', translateElements);
+                i18next.on('languageChanged', translateElements);
+                if (i18next.isInitialized) {
+                    translateElements();
+                }
+            }
+
             let houseId = null;
             let currentHouse = null;
 
@@ -181,7 +208,7 @@
             // Event listeners
             if (elements.editBtn) {
                 elements.editBtn.addEventListener('click', function() {
-                    window.location.href = `/houses/edit/${houseId}`;
+                    window.location.href = window.contextPath + `/houses/edit/${houseId}`;
                 });
             }
 
@@ -197,23 +224,26 @@
 
             async function loadHouseData() {
                 try {
-                    const response = await fetch(`/houses/getHouse/${houseId}`);
+                    const response = await fetch(window.contextPath + `/houses/getHouse/${houseId}`);
                     if (response.ok) {
                         currentHouse = await response.json();
                         displayHouseData(currentHouse);
                     } else {
-                        throw new Error('Дом не найден');
+                        const notFoundMsg = typeof i18next !== 'undefined' ? i18next.t('houses.errors.notFound') : 'Дом не найден';
+                        throw new Error(notFoundMsg);
                     }
                 } catch (error) {
                     console.error('Error loading house:', error);
-                    showNotification('Ошибка при загрузке данных дома', 'error');
+                    const errorMsg = typeof i18next !== 'undefined' ? i18next.t('houses.errors.loadData') : 'Ошибка при загрузке данных дома';
+                    showNotification(errorMsg, 'error');
                 }
             }
 
             function displayHouseData(house) {
                 // House number
                 if (elements.houseNumber) {
-                    elements.houseNumber.textContent = `Дом №${house.houseNumber || house.number || '-'}`;
+                    const houseLabel = typeof i18next !== 'undefined' ? i18next.t('houses.houseLabel') : 'Дом';
+                    elements.houseNumber.textContent = `${houseLabel} №${house.houseNumber || house.number || '-'}`;
                 }
 
                 if (elements.numberDetail) {
@@ -222,25 +252,34 @@
 
                 // Status badge
                 if (elements.status) {
-                    const statusLabels = {
-                        'NEW': { text: 'Новый', class: 'bg-label-info' },
-                        'ACTIVE': { text: 'Активный', class: 'bg-label-success' },
-                        'DEACTIVATED': { text: 'Деактивирован', class: 'bg-label-warning' },
-                        'BLOCKED': { text: 'Заблокирован', class: 'bg-label-danger' }
+                    const getStatusInfo = (status) => {
+                        const statusLabels = {
+                            'NEW': { key: 'common.statuses.new', class: 'bg-label-info', default: 'Новый' },
+                            'ACTIVE': { key: 'common.statuses.active', class: 'bg-label-success', default: 'Активный' },
+                            'DEACTIVATED': { key: 'common.statuses.deactivated', class: 'bg-label-warning', default: 'Деактивирован' },
+                            'BLOCKED': { key: 'common.statuses.blocked', class: 'bg-label-danger', default: 'Заблокирован' }
+                        };
+                        const statusInfo = statusLabels[status] || { key: null, class: 'bg-label-secondary', default: status || '-' };
+                        const text = statusInfo.key && typeof i18next !== 'undefined' ? i18next.t(statusInfo.key) : statusInfo.default;
+                        return { text, class: statusInfo.class };
                     };
-                    const statusInfo = statusLabels[house.status] || { text: house.status || '-', class: 'bg-label-secondary' };
+                    const statusInfo = getStatusInfo(house.status);
                     elements.status.textContent = statusInfo.text;
                     elements.status.className = `badge ${statusInfo.class}`;
                 }
 
                 if (elements.statusDetail) {
-                    const statusLabels = {
-                        'NEW': 'Новый',
-                        'ACTIVE': 'Активный',
-                        'DEACTIVATED': 'Деактивирован',
-                        'BLOCKED': 'Заблокирован'
+                    const getStatusText = (status) => {
+                        const statusLabels = {
+                            'NEW': { key: 'common.statuses.new', default: 'Новый' },
+                            'ACTIVE': { key: 'common.statuses.active', default: 'Активный' },
+                            'DEACTIVATED': { key: 'common.statuses.deactivated', default: 'Деактивирован' },
+                            'BLOCKED': { key: 'common.statuses.blocked', default: 'Заблокирован' }
+                        };
+                        const statusInfo = statusLabels[status] || { key: null, default: status || '-' };
+                        return statusInfo.key && typeof i18next !== 'undefined' ? i18next.t(statusInfo.key) : statusInfo.default;
                     };
-                    elements.statusDetail.textContent = statusLabels[house.status] || house.status || '-';
+                    elements.statusDetail.textContent = getStatusText(house.status);
                 }
 
                 // Address
@@ -260,36 +299,48 @@
 
                 // Chairman
                 if (elements.chairman) {
-                    elements.chairman.textContent = house.chairman?.fullName || 'Не назначен';
+                    const notAssigned = typeof i18next !== 'undefined' ? i18next.t('houses.notAssigned') : 'Не назначен';
+                    elements.chairman.textContent = house.chairman?.fullName || notAssigned;
                 }
             }
 
             async function deleteHouse() {
                 try {
-                    const response = await fetch(`/houses/${houseId}`, {
+                    const response = await fetch(window.contextPath + `/houses/${houseId}`, {
                         method: 'DELETE'
                     });
 
                     if (response.ok) {
                         $('#deleteConfirmModal').modal('hide');
-                        showNotification('Дом успешно удален', 'success');
+                        const successMsg = typeof i18next !== 'undefined' ? i18next.t('houses.deleteSuccess') : 'Дом успешно удален';
+                        showNotification(successMsg, 'success');
                         setTimeout(() => {
-                            window.location.href = '/houses';
+                            window.location.href = window.contextPath + '/houses';
                         }, 1500);
                     } else {
-                        throw new Error('Ошибка при удалении');
+                        const deleteErrorMsg = typeof i18next !== 'undefined' ? i18next.t('houses.deleteError') : 'Ошибка при удалении';
+                        throw new Error(deleteErrorMsg);
                     }
                 } catch (error) {
                     console.error('Error deleting house:', error);
-                    showNotification('Ошибка при удалении дома', 'error');
+                    const deleteErrorMsg = typeof i18next !== 'undefined' ? i18next.t('houses.deleteError') : 'Ошибка при удалении дома';
+                    showNotification(deleteErrorMsg, 'error');
                 }
             }
 
             function showNotification(message, type = 'info') {
                 if (typeof Swal !== 'undefined') {
                     const icon = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+                    const getTitle = () => {
+                        if (typeof i18next !== 'undefined') {
+                            if (type === 'error') return i18next.t('notifications.titles.error');
+                            if (type === 'success') return i18next.t('notifications.titles.success');
+                            return i18next.t('notifications.titles.info');
+                        }
+                        return type === 'error' ? 'Ошибка' : type === 'success' ? 'Успех' : 'Информация';
+                    };
                     Swal.fire({
-                        title: type === 'error' ? 'Ошибка' : type === 'success' ? 'Успех' : 'Информация',
+                        title: getTitle(),
                         text: message,
                         icon: icon,
                         customClass: {

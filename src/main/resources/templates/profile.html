@@ -286,8 +286,9 @@
 <th:block layout:fragment="page_js">
     <script th:src="@{/custom/toast.js}"></script>
     <script th:inline="javascript">
+        window.contextPath = '[[@{/}]]'.replaceAll('"', '').replace(/\/$/, '');
         // Profile management script
-        const API_BASE_URL = '/profile/api';
+        const API_BASE_URL = window.contextPath + '/profile/api';
         
         document.addEventListener('DOMContentLoaded', function () {
             loadProfileData();
@@ -526,7 +527,7 @@
                 })
                 .then(() => {
                     showToast('Аватар успешно удален', 'success');
-                    document.getElementById('uploadedAvatar').src = '/assets/img/avatars/1.png';
+                    document.getElementById('uploadedAvatar').src = (window.contextPath || '') + '/assets/img/avatars/1.png';
                     document.getElementById('upload').value = '';
                 })
                 .catch(error => {
