@@ -18,6 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
@@ -46,18 +50,20 @@ public class SecurityConfig {
                     corsConfiguration.setAllowCredentials(true);
                     return corsConfiguration;
                 }))
-                .sessionManagement(session -> 
-                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .securityContext(context -> 
+                        context.securityContextRepository(securityContextRepository())
+                )
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/", "/login", "/perform-login", "/assets/**", "/css/**", "/js/**", "/assetsArchitect/**").permitAll()
+                        .requestMatchers("/", "/login", "/perform-login", "/register", "/assets/**", "/css/**", "/js/**", "/assetsArchitect/**").permitAll()
                         .requestMatchers("/.well-known/**").permitAll()
                         .requestMatchers("/forgotPassword", "/resetPassword", "/changePassword", "/confirmation", "/success", "/oauth2/**", "/user-info", "/current-user", "/debug/**").permitAll()
                         .requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
                         .requestMatchers("/api/users/search-table/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/perform-login")
@@ -67,7 +73,6 @@ public class SecurityConfig {
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
-                
                 .oauth2Login((oauth2) -> oauth2
                         .loginPage("/login")
                         .userInfoEndpoint((userInfo) -> userInfo
@@ -101,5 +106,13 @@ public class SecurityConfig {
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        return new DelegatingSecurityContextRepository(
+            new RequestAttributeSecurityContextRepository(),
+            new HttpSessionSecurityContextRepository()
+        );
     }
 }

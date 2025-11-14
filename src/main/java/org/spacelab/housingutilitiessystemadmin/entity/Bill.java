@@ -12,4 +12,6 @@ public class Bill {
     @Id
     private String id;
     private LocalDate date;
+
+
 }

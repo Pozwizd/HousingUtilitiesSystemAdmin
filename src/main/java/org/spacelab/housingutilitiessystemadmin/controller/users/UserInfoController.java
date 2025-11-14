@@ -101,7 +101,7 @@ public class UserInfoController {
                 debug.put("oidcUser", Map.of(
                     "class", oidcUser.getClass().getName(),
                     "name", oidcUser.getName(),
-                    "email", oidcUser.getEmail(),
+                        "templates/email", oidcUser.getEmail(),
                     "attributes", oidcUser.getAttributes(),
                     "authorities", oidcUser.getAuthorities()
                 ));

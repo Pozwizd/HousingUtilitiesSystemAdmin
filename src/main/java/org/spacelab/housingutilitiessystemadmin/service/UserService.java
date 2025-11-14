@@ -4,6 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.spacelab.housingutilitiessystemadmin.entity.User;
 import org.spacelab.housingutilitiessystemadmin.entity.location.City;
 import org.spacelab.housingutilitiessystemadmin.entity.location.House;
@@ -69,14 +72,16 @@ public class UserService {
     }
 
 
+    @Cacheable(value = "users", key = "#id.toHexString()")
     public UserResponse getUserById(ObjectId id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new OperationException("получении пользователя",
                         "Пользователь с ID " + id + " не найден", HttpStatus.NOT_FOUND));
-        log.info("Пользователь с ID {} успешно получен", id);
+        log.info("Пользователь с ID {} успешно получен из БД", id);
         return userMapper.mapUserToResponse(user);
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public UserResponse createUser(UserRequest userRequest) {
         Optional<User> existingUser = userRepository.findByEmail(userRequest.getEmail());
         if (existingUser.isPresent()) {
@@ -134,6 +139,7 @@ public class UserService {
         return userMapper.mapUserToResponse(savedUser);
     }
 
+    @CachePut(value = "users", key = "#id.toHexString()")
     public UserResponse updateUser(ObjectId id, UserRequest userRequest) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new OperationException("обновлении пользователя",
@@ -194,6 +200,7 @@ public class UserService {
         return userMapper.mapUserToResponse(updatedUser);
     }
 
+    @CacheEvict(value = "users", key = "#id.toHexString()")
     public boolean deleteUser(ObjectId id) {
         if (!userRepository.existsById(id)) {
             throw new OperationException("удалении пользователя",
@@ -204,6 +211,29 @@ public class UserService {
         return true;
     }
 
+    public List<UserResponse> getUsersByHouseId(String houseId) {
+        House house = houseService.findById(houseId)
+                .orElseThrow(() -> new OperationException("получении пользователей",
+                        "Дом с ID " + houseId + " не найден", HttpStatus.NOT_FOUND));
+        
+        List<User> users = userRepository.findByHouse(house);
+        log.info("Найдено {} пользователей для дома с ID {}", users.size(), houseId);
+        return users.stream()
+                .map(userMapper::mapUserToResponse)
+                .toList();
+    }
 
+    public Page<UserResponse> getUsersByHouseIdPaginated(String houseId, int page, int size) {
+        House house = houseService.findById(houseId)
+                .orElseThrow(() -> new OperationException("получении пользователей",
+                        "Дом с ID " + houseId + " не найден", HttpStatus.NOT_FOUND));
+        
+        org.springframework.data.domain.Pageable pageable = 
+                org.springframework.data.domain.PageRequest.of(page, size);
+        Page<User> users = userRepository.findByHouse(house, pageable);
+        log.info("Найдено {} пользователей для дома с ID {} (страница {}, размер {})", 
+                users.getNumberOfElements(), houseId, page, size);
+        return users.map(userMapper::mapUserToResponse);
+    }
 
 }

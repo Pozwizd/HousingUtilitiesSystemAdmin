@@ -21,7 +21,7 @@ public class Admin implements UserDetails {
     private String pathAvatar;
     private Role role = Role.ADMIN;
     private boolean enabled = true;
-    
+
     // Additional profile fields
     private String phone;
     private String organization;

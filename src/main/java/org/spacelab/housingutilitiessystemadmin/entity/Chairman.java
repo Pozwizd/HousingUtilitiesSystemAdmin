@@ -1,6 +1,9 @@
 package org.spacelab.housingutilitiessystemadmin.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.spacelab.housingutilitiessystemadmin.entity.location.House;
 import org.spacelab.housingutilitiessystemadmin.entity.location.Status;
 import org.springframework.data.annotation.Id;
@@ -9,6 +12,9 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 @Data
 @Document
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Chairman {
     @Id
     private String id;

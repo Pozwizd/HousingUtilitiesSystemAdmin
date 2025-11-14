@@ -84,7 +84,7 @@
                         <h5 class="modal-title" id="deleteConfirmModalLabel" data-i18n="common.confirmDelete">
                             Подтверждение удаления</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                data-i18n="[aria-label]common.close" aria-label="Закрыть"></button>
+                                 aria-label="Закрыть"></button>
                     </div>
                     <div class="modal-body">
                         <span data-i18n="users.deleteConfirm">Вы уверены, что хотите удалить этого пользователя?</span>
@@ -176,17 +176,45 @@
                     const tbody = $('#userTableBody');
                     tbody.empty();
 
+                    if (!users || users.length === 0) {
+                        const noDataText = typeof i18next !== 'undefined' ? i18next.t('users.notFound') : 'Пользователи не найдены';
+                        tbody.append(`
+                            <tr>
+                                <td colspan="9" class="text-center py-4">
+                                    <i class="icon-base ti tabler-user-off icon-lg mb-2"></i>
+                                    <p class="mb-0">${noDataText}</p>
+                                </td>
+                            </tr>
+                        `);
+                        return;
+                    }
+
                     users.forEach(user => {
+                        // Форматирование статуса
+                        const getStatusLabel = (status) => {
+                            const statusLabels = {
+                                'NEW': { key: 'common.statuses.new', class: 'bg-info', default: 'Новый' },
+                                'ACTIVE': { key: 'common.statuses.active', class: 'bg-success', default: 'Активный' },
+                                'DEACTIVATED': { key: 'common.statuses.deactivated', class: 'bg-warning', default: 'Деактивирован' },
+                                'BLOCKED': { key: 'common.statuses.blocked', class: 'bg-danger', default: 'Заблокирован' }
+                            };
+                            const statusInfo = statusLabels[status];
+                            if (!statusInfo) return status || '';
+                            const text = typeof i18next !== 'undefined' ? i18next.t(statusInfo.key) : statusInfo.default;
+                            return `<span class="badge ${statusInfo.class}">${text}</span>`;
+                        };
+                        const statusDisplay = getStatusLabel(user.status);
+
                         const row = `
                     <tr>
-                        <td>${user.fullName || ''}</td>
-                        <td>${user.cityName || ''}</td>
-                        <td>${user.streetName || ''}</td>
-                        <td>${user.houseNumber || ''}</td>
-                        <td>${user.apartmentNumber || ''}</td>
-                        <td>${user.accountNumber || ''}</td>
-                        <td>${user.phoneNumber || ''}</td>
-                        <td>${user.status || ''}</td>
+                        <td>${user.fullName || '-'}</td>
+                        <td>${user.cityName || '-'}</td>
+                        <td>${user.streetName || '-'}</td>
+                        <td>${user.houseNumber || '-'}</td>
+                        <td>${user.apartmentNumber || '-'}</td>
+                        <td>${user.accountNumber || '-'}</td>
+                        <td>${user.phoneNumber || '-'}</td>
+                        <td>${statusDisplay}</td>
                         <td class="text-center">
                         <div class="dropdown">
                             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
@@ -194,9 +222,9 @@
                             </button>
                             <div class="dropdown-menu">
                                   <a href="${window.contextPath}/users/edit/${user.id}" class="dropdown-item"><i
-                                      class="icon-base ti tabler-pencil me-1"></i> <span data-i18n="common.edit">Edit</span></a>
+                                      class="icon-base ti tabler-pencil me-1"></i> <span data-i18n="common.edit">Редактировать</span></a>
                                   <button class="dropdown-item delete-btn" data-id="${user.id}" ><i
-                                      class="icon-base ti tabler-trash me-1"></i> <span data-i18n="common.delete">Delete</span></button>
+                                      class="icon-base ti tabler-trash me-1"></i> <span data-i18n="common.delete">Удалить</span></button>
                             </div>
                         </div>
                         </td>

@@ -41,7 +41,13 @@
     "areYouSure": "Are you sure?",
     "noDataFound": "No data found",
     "pagination": "Page navigation",
-    "validationFailed": "Validation failed"
+    "validationFailed": "Validation failed",
+    "statuses": {
+      "new": "New",
+      "active": "Active",
+      "deactivated": "Deactivated",
+      "blocked": "Blocked"
+    }
   },
   "users": {
     "title": "Users",

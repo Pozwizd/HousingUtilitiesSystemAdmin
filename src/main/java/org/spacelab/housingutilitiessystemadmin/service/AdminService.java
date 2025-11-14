@@ -2,7 +2,6 @@ package org.spacelab.housingutilitiessystemadmin.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.spacelab.housingutilitiessystemadmin.entity.Admin;
 import org.spacelab.housingutilitiessystemadmin.exception.OperationException;
 import org.spacelab.housingutilitiessystemadmin.models.admin.ProfileUpdateRequest;
@@ -32,11 +31,25 @@ public class AdminService {
         return adminRepository.save(admin);
     }
 
+    public Admin createAdmin(String email, String password, String username) {
+        Admin admin = new Admin();
+        admin.setEmail(email);
+        admin.setUsername(username);
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setEnabled(true);
+
+        return adminRepository.save(admin);
+    }
+
     public Admin findByEmail(String email) {
         return adminRepository.findByEmail(email);
     }
+
+    public Optional<Admin> findOptByEmail(String email) {
+        return adminRepository.findOptByEmail(email);
+    }
     
-    public Optional<Admin> findById(ObjectId id) {
+    public Optional<Admin> findById(String id) {
         return adminRepository.findById(id);
     }
 

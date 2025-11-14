@@ -41,7 +41,13 @@
     "areYouSure": "Вы уверены?",
     "noDataFound": "Данные не найдены",
     "pagination": "Навигация по страницам",
-    "validationFailed": "Ошибка валидации"
+    "validationFailed": "Ошибка валидации",
+    "statuses": {
+      "new": "Новый",
+      "active": "Активный",
+      "deactivated": "Деактивирован",
+      "blocked": "Заблокирован"
+    }
   },
   "users": {
     "title": "Пользователи",

@@ -27,7 +27,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        String email = (String) attributes.get("email");
+        String email = (String) attributes.get("templates/email");
         String name = (String) attributes.get("name");
 
         User user = userRepository.findByEmail(email)
@@ -60,7 +60,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         return new org.springframework.security.oauth2.core.user.DefaultOAuth2User(
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")),
                 attributes,
-                "email"
+                "templates/email"
         );
     }
 }

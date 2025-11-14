@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -42,6 +43,7 @@ public class DataLoader {
     private final ContactSectionService contactSectionService;
     private final BillService billService;
     private final VoteService voteService;
+    private final PasswordEncoder passwordEncoder;
 
     private final MongoBulkConfig mongoBulkConfig;
     private final MongoTemplate mongoTemplate;
@@ -428,7 +430,22 @@ public class DataLoader {
 
 
     private List<Chairman> createChairmen(Faker faker) {
+        Chairman chairmanFotTest = Chairman.builder()
+                .id(UUID.randomUUID().toString())
+                .lastName("TestLastName")
+                .firstName("TestFirstName")
+                .middleName("TestMiddleName")
+                .phone("+380501234567")
+                .login("Chairman")
+                .email("chairmen@gmail")
+                .password(passwordEncoder.encode("chairmen@gmail"))
+                .status(Status.ACTIVE)
+                .photo("uploads/avatar.jpg")
+                .build();
+
+
         List<Chairman> chairmen = new ArrayList<>();
+        chairmen.add(chairmanFotTest);
         for (int i = 0; i < 10; i++) {
             Chairman chairman = new Chairman();
             chairman.setId(UUID.randomUUID().toString());
@@ -439,7 +456,7 @@ public class DataLoader {
             chairman.setEmail(faker.internet().emailAddress());
             chairman.setStatus(getRandomEnum(Status.class));
             chairman.setLogin(faker.internet().username());
-            chairman.setPassword(faker.internet().password());
+            chairman.setPassword(passwordEncoder.encode(faker.internet().password()));
 
             File avatarFile = new File("uploads/avatar.jpg");
             if (avatarFile.exists() && avatarFile.isFile()) {

@@ -123,6 +123,20 @@
                                 </table>
                             </div>
                         </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center py-3">
+                            <label class="d-flex align-items-center gap-1 mb-0">
+                                <select id="userPageSize" class="custom-select custom-select-sm form-control form-control-sm mx-2" style="width: auto;">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </label>
+                            <nav aria-label="Pagination">
+                                <ul class="pagination mb-0" id="usersPagination">
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -181,6 +195,8 @@
 
             let houseId = null;
             let currentHouse = null;
+            let currentUserPage = 0;
+            let userPageSize = 10;
 
             // Get house ID from URL
             const pathParts = window.location.pathname.split('/');
@@ -204,6 +220,9 @@
 
             // Load house data
             loadHouseData();
+            
+            // Load users for this house
+            loadHouseUsers();
 
             // Event listeners
             if (elements.editBtn) {
@@ -326,6 +345,207 @@
                     const deleteErrorMsg = typeof i18next !== 'undefined' ? i18next.t('houses.deleteError') : 'Ошибка при удалении дома';
                     showNotification(deleteErrorMsg, 'error');
                 }
+            }
+
+            async function loadHouseUsers() {
+                try {
+                    const response = await fetch(
+                        window.contextPath + `/houses/getUsersByHouse/${houseId}?page=${currentUserPage}&size=${userPageSize}`
+                    );
+                    if (response.ok) {
+                        const pageData = await response.json();
+                        displayHouseUsers(pageData.content);
+                        renderUsersPagination(pageData);
+                    } else {
+                        console.error('Error loading users:', response.statusText);
+                        displayNoUsers();
+                    }
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                    displayNoUsers();
+                }
+            }
+
+            function displayHouseUsers(users) {
+                if (!elements.usersTableBody) return;
+                
+                if (!users || users.length === 0) {
+                    displayNoUsers();
+                    return;
+                }
+
+                let html = '';
+                users.forEach(user => {
+                    const fullName = user.fullName || `${user.lastName || ''} ${user.firstName || ''} ${user.middleName || ''}`.trim() || '-';
+                    const apartment = user.apartmentNumber || '-';
+                    const phone = user.phone || '-';
+                    const email = user.email || '-';
+
+                    html += `
+                        <tr>
+                            <td>${fullName}</td>
+                            <td>${apartment}</td>
+                            <td>${phone}</td>
+                            <td>${email}</td>
+                        </tr>
+                    `;
+                });
+
+                elements.usersTableBody.innerHTML = html;
+            }
+
+            function displayNoUsers() {
+                if (!elements.usersTableBody) return;
+                
+                const noDataMsg = typeof i18next !== 'undefined' ? i18next.t('houses.noResidentsData') : 'Нет данных о жильцах';
+                elements.usersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            <i class="icon-base ti tabler-users ti-sm me-1"></i>
+                            <span>${noDataMsg}</span>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            function renderUsersPagination(pageData) {
+                const pagination = document.getElementById('usersPagination');
+                if (!pagination) return;
+                
+                pagination.innerHTML = '';
+
+                const totalPages = pageData.totalPages;
+                const currentPageNum = pageData.number;
+
+                if (totalPages <= 1) return;
+
+                // First button
+                const firstDisabled = currentPageNum === 0 ? 'disabled' : '';
+                pagination.innerHTML += `
+                    <li class="page-item first ${firstDisabled}">
+                        <a class="page-link" href="#" data-user-page="0" ${firstDisabled ? 'aria-disabled="true"' : ''}>
+                            <i class="icon-base ti tabler-chevrons-left icon-sm"></i>
+                        </a>
+                    </li>
+                `;
+
+                // Previous button
+                const prevDisabled = currentPageNum === 0 ? 'disabled' : '';
+                pagination.innerHTML += `
+                    <li class="page-item prev ${prevDisabled}">
+                        <a class="page-link" href="#" data-user-page="${currentPageNum - 1}" ${prevDisabled ? 'aria-disabled="true"' : ''}>
+                            <i class="icon-base ti tabler-chevron-left icon-sm"></i>
+                        </a>
+                    </li>
+                `;
+
+                // Page numbers logic
+                if (totalPages <= 7) {
+                    for (let i = 0; i < totalPages; i++) {
+                        const activeClass = i === currentPageNum ? 'active' : '';
+                        pagination.innerHTML += `
+                            <li class="page-item ${activeClass}">
+                                <a class="page-link" href="#" data-user-page="${i}">${i + 1}</a>
+                            </li>
+                        `;
+                    }
+                } else {
+                    // First page
+                    const firstActive = currentPageNum === 0 ? 'active' : '';
+                    pagination.innerHTML += `
+                        <li class="page-item ${firstActive}">
+                            <a class="page-link" href="#" data-user-page="0">1</a>
+                        </li>
+                    `;
+
+                    let startPage, endPage;
+                    const pagesAround = 2;
+
+                    if (currentPageNum <= 3) {
+                        startPage = 1;
+                        endPage = Math.min(5, totalPages - 2);
+                    } else if (currentPageNum >= totalPages - 4) {
+                        startPage = Math.max(totalPages - 6, 1);
+                        endPage = totalPages - 2;
+                    } else {
+                        startPage = currentPageNum - pagesAround;
+                        endPage = currentPageNum + pagesAround;
+                    }
+
+                    if (startPage > 1) {
+                        pagination.innerHTML += `
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        `;
+                    }
+
+                    for (let i = startPage; i <= endPage; i++) {
+                        const activeClass = i === currentPageNum ? 'active' : '';
+                        pagination.innerHTML += `
+                            <li class="page-item ${activeClass}">
+                                <a class="page-link" href="#" data-user-page="${i}">${i + 1}</a>
+                            </li>
+                        `;
+                    }
+
+                    if (endPage < totalPages - 2) {
+                        pagination.innerHTML += `
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        `;
+                    }
+
+                    // Last page
+                    const lastActive = currentPageNum === totalPages - 1 ? 'active' : '';
+                    pagination.innerHTML += `
+                        <li class="page-item ${lastActive}">
+                            <a class="page-link" href="#" data-user-page="${totalPages - 1}">${totalPages}</a>
+                        </li>
+                    `;
+                }
+
+                // Next button
+                const nextDisabled = currentPageNum === totalPages - 1 ? 'disabled' : '';
+                pagination.innerHTML += `
+                    <li class="page-item next ${nextDisabled}">
+                        <a class="page-link" href="#" data-user-page="${currentPageNum + 1}" ${nextDisabled ? 'aria-disabled="true"' : ''}>
+                            <i class="icon-base ti tabler-chevron-right icon-sm"></i>
+                        </a>
+                    </li>
+                `;
+
+                // Last button
+                const lastDisabled = currentPageNum === totalPages - 1 ? 'disabled' : '';
+                pagination.innerHTML += `
+                    <li class="page-item last ${lastDisabled}">
+                        <a class="page-link" href="#" data-user-page="${totalPages - 1}" ${lastDisabled ? 'aria-disabled="true"' : ''}>
+                            <i class="icon-base ti tabler-chevrons-right icon-sm"></i>
+                        </a>
+                    </li>
+                `;
+
+                // Add click handlers
+                pagination.querySelectorAll('a[data-user-page]').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (!this.parentElement.classList.contains('disabled')) {
+                            currentUserPage = parseInt(this.getAttribute('data-user-page'));
+                            loadHouseUsers();
+                        }
+                    });
+                });
+            }
+
+            // Page size change handler
+            const userPageSizeSelect = document.getElementById('userPageSize');
+            if (userPageSizeSelect) {
+                userPageSizeSelect.addEventListener('change', function() {
+                    userPageSize = parseInt(this.value);
+                    currentUserPage = 0;
+                    loadHouseUsers();
+                });
             }
 
             function showNotification(message, type = 'info') {

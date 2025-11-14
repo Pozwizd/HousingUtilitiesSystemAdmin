@@ -8,7 +8,9 @@ import org.spacelab.housingutilitiessystemadmin.models.filters.house.HouseReques
 import org.spacelab.housingutilitiessystemadmin.models.location.HouseRequest;
 import org.spacelab.housingutilitiessystemadmin.models.location.HouseResponse;
 import org.spacelab.housingutilitiessystemadmin.models.location.HouseResponseTable;
+import org.spacelab.housingutilitiessystemadmin.models.user.UserResponse;
 import org.spacelab.housingutilitiessystemadmin.service.HouseService;
+import org.spacelab.housingutilitiessystemadmin.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,6 +29,7 @@ import java.util.List;
 public class HouseController {
 
     private final HouseService houseService;
+    private final UserService userService;
 
     @PostMapping("/getAll")
     @ResponseBody
@@ -119,5 +122,17 @@ public class HouseController {
         model.addAttribute("pageActive", "houses");
         model.addAttribute("opened", true);
         return new ModelAndView("house/houseCard");
+    }
+
+    @GetMapping("/getUsersByHouse/{houseId}")
+    @ResponseBody
+    public ResponseEntity<Page<UserResponse>> getUsersByHouse(
+            @PathVariable String houseId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Получен запрос на получение пользователей для дома с ID: {} (страница: {}, размер: {})", 
+                houseId, page, size);
+        Page<UserResponse> users = userService.getUsersByHouseIdPaginated(houseId, page, size);
+        return ResponseEntity.ok(users);
     }
 }

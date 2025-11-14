@@ -7,6 +7,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+/**
+ * Конфигурация RedisTemplate для прямой работы с Redis через RedisService.
+ * Для кэширования через аннотации используется CacheConfig.
+ */
 @Configuration
 public class RedisConfig {
 

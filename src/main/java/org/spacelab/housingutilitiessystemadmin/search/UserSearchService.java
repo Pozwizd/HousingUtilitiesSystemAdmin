@@ -106,7 +106,7 @@ public class UserSearchService {
         Criteria criteria = new Criteria("firstName").contains(searchTerm)
                 .or("lastName").contains(searchTerm)
                 .or("middleName").contains(searchTerm)
-                .or("email").is(searchTerm)
+                .or("templates/email").is(searchTerm)
                 .or("phone").is(searchTerm)
                 .or("accountNumber").is(searchTerm);
         

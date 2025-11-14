@@ -41,7 +41,13 @@
     "areYouSure": "Ви впевнені?",
     "noDataFound": "Дані не знайдено",
     "pagination": "Навігація по сторінках",
-    "validationFailed": "Помилка валідації"
+    "validationFailed": "Помилка валідації",
+    "statuses": {
+      "new": "Новий",
+      "active": "Активний",
+      "deactivated": "Деактивований",
+      "blocked": "Заблокований"
+    }
   },
   "users": {
     "title": "Користувачі",

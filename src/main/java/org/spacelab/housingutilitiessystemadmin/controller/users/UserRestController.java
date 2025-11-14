@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/users")
@@ -25,15 +24,9 @@ public class UserRestController {
 
     private final UserService userService;
 
-    /**
-     * Асинхронный метод с Callable.
-     * SecurityContext автоматически передается через SecurityContextCallableInterceptor.
-     */
     @GetMapping("/getUser/{id}")
-    public CompletableFuture<ResponseEntity<UserResponse>> getUser(@PathVariable ObjectId id) {
-        return CompletableFuture.completedFuture(
-                ResponseEntity.ok(userService.getUserById(id))
-        );
+    public ResponseEntity<UserResponse> getUser(@PathVariable ObjectId id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PostMapping("/getAll")

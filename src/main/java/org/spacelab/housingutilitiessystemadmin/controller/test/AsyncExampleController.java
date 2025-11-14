@@ -12,8 +12,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.WebAsyncTask;
 
-import java.util.concurrent.CompletableFuture;
-
 /**
  * Примеры правильной работы с асинхронными эндпоинтами и JWT безопасностью
  * 
@@ -132,16 +130,16 @@ public class AsyncExampleController {
     */
 
     // ========================================================================
-    // СПОСОБ 3: CompletableFuture с явным executor
-    // Подходит для: Параллельное выполнение нескольких задач
+    // СПОСОБ 3: Синхронная загрузка дашборда
+    // Подходит для: Обычных операций без параллельной обработки
     // ========================================================================
     
     /**
-     * Пример: Загрузка дашборда с параллельными запросами
-     * Ускоряет агрегацию данных из разных источников
+     * Пример: Загрузка дашборда
+     * Синхронная загрузка данных
      */
     @GetMapping("/dashboard")
-    public CompletableFuture<ResponseEntity<DashboardData>> getDashboard(
+    public ResponseEntity<DashboardData> getDashboard(
             Authentication authentication) {
         
         // 1. Извлекаем данные пользователя
@@ -151,40 +149,26 @@ public class AsyncExampleController {
         
         log.info("Загрузка дашборда для пользователя: {}", username);
         
-        // 2. Запускаем параллельные запросы с ЯВНЫМ указанием executor
-        // ВАЖНО: Не используйте CompletableFuture.supplyAsync() без executor!
-        
+        // 2. Синхронная загрузка данных
         /* Пример с реальными сервисами:
         
-        CompletableFuture<UserStats> statsFuture = 
-            CompletableFuture.supplyAsync(() -> 
-                statsService.getUserStats(userId), taskExecutor);
+        UserStats stats = statsService.getUserStats(userId);
+        List<Notification> notifications = notificationService.getRecentNotifications(userId);
+        List<Activity> activity = activityService.getRecentActivity(userId);
         
-        CompletableFuture<List<Notification>> notificationsFuture = 
-            CompletableFuture.supplyAsync(() -> 
-                notificationService.getRecentNotifications(userId), taskExecutor);
+        DashboardData dashboard = new DashboardData();
+        dashboard.setUsername(username);
+        dashboard.setStats(stats);
+        dashboard.setNotifications(notifications);
+        dashboard.setActivity(activity);
         
-        CompletableFuture<List<Activity>> activityFuture = 
-            CompletableFuture.supplyAsync(() -> 
-                activityService.getRecentActivity(userId), taskExecutor);
-        
-        // 3. Ждем завершения всех задач
-        return CompletableFuture.allOf(statsFuture, notificationsFuture, activityFuture)
-            .thenApply(v -> {
-                DashboardData dashboard = new DashboardData();
-                dashboard.setUsername(username);
-                dashboard.setStats(statsFuture.join());
-                dashboard.setNotifications(notificationsFuture.join());
-                dashboard.setActivity(activityFuture.join());
-                
-                return ResponseEntity.ok(dashboard);
-            });
+        return ResponseEntity.ok(dashboard);
         */
         
         // Заглушка для примера
         DashboardData dashboard = new DashboardData();
         dashboard.setUsername(username);
-        return CompletableFuture.completedFuture(ResponseEntity.ok(dashboard));
+        return ResponseEntity.ok(dashboard);
     }
 
     // ========================================================================
@@ -226,17 +210,12 @@ public class AsyncExampleController {
     // ========================================================================
     
     /**
-     * ❌ ПЛОХО: CompletableFuture без указания executor
-     * Использует ForkJoinPool.commonPool() → SecurityContext теряется
+     * ✅ ПРАВИЛЬНО: Синхронный метод
      */
     @GetMapping("/bad-example-1/{id}")
-    public CompletableFuture<ResponseEntity<String>> badExample1(@PathVariable Long id) {
-        return CompletableFuture.supplyAsync(() -> {
-            // SecurityContext ОТСУТСТВУЕТ!
-            // SecurityContextHolder.getContext().getAuthentication() → null
-            return ResponseEntity.ok("This won't work with security!");
-        });
-        // ❌ НЕ указан executor → используется ForkJoinPool.commonPool()
+    public ResponseEntity<String> badExample1(@PathVariable Long id) {
+        // Синхронный код - SecurityContext доступен
+        return ResponseEntity.ok("Synchronous method with security!");
     }
     
     /**

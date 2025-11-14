@@ -134,7 +134,7 @@ public class ChairmanRepositoryImpl implements ChairmanRepositoryCustom {
         if (StringUtils.hasText(filter.getEmail())) {
             String emailPattern = filter.getEmail().trim();
             log.debug("Применяется фильтр по email: {}", emailPattern);
-            criteriaList.add(Criteria.where("email").regex(emailPattern, "i"));
+            criteriaList.add(Criteria.where("templates/email").regex(emailPattern, "i"));
         }
 
         if (StringUtils.hasText(filter.getLogin())) {
