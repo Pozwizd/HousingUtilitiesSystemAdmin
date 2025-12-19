@@ -13,5 +13,4 @@ public class Bill {
     private String id;
     private LocalDate date;
 
-
 }

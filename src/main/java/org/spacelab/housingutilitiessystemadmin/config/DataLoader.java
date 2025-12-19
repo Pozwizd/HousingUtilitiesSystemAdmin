@@ -96,7 +96,7 @@ public class DataLoader {
         List<House> allHouses = new ArrayList<>();
 
         try (InputStream is = new FileInputStream("streetBDtest.csv");
-             BufferedReader br = new BufferedReader(new InputStreamReader(is, "Windows-1251"))) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is, "Windows-1251"))) {
 
             br.readLine();
             String line;
@@ -247,10 +247,9 @@ public class DataLoader {
         }
     }
 
-
     private void updateBidirectionalReferencesWithBulk(Map<String, Region> regionsMap,
-                                                       Map<String, City> citiesMap,
-                                                       Map<String, Street> streetsMap) {
+            Map<String, City> citiesMap,
+            Map<String, Street> streetsMap) {
         System.out.println("Обновляем двусторонние связи через BulkOperations...");
 
         try {
@@ -267,8 +266,7 @@ public class DataLoader {
                     if (!houseIds.isEmpty()) {
                         houseBulkOps.updateMulti(
                                 Query.query(Criteria.where("id").in(houseIds)),
-                                Update.update("street", street)
-                        );
+                                Update.update("street", street));
                         houseUpdatesCount += houseIds.size();
                     }
                 }
@@ -277,9 +275,11 @@ public class DataLoader {
             if (houseUpdatesCount > 0) {
                 BulkWriteResult houseResult = houseBulkOps.execute();
                 if (houseResult.wasAcknowledged()) {
-                    System.out.println("Обновлены связи house.street: " + houseResult.getModifiedCount() + " из " + houseUpdatesCount);
+                    System.out.println("Обновлены связи house.street: " + houseResult.getModifiedCount() + " из "
+                            + houseUpdatesCount);
                 } else {
-                    System.out.println("Операции house.street выполнены (неподтвержденная запись): " + houseUpdatesCount + " операций");
+                    System.out.println("Операции house.street выполнены (неподтвержденная запись): " + houseUpdatesCount
+                            + " операций");
                 }
             } else {
                 System.out.println("Нет домов для обновления связей house.street");
@@ -298,8 +298,7 @@ public class DataLoader {
                     if (!streetIds.isEmpty()) {
                         streetBulkOps.updateMulti(
                                 Query.query(Criteria.where("id").in(streetIds)),
-                                Update.update("city", city)
-                        );
+                                Update.update("city", city));
                         streetUpdatesCount += streetIds.size();
                     }
                 }
@@ -308,9 +307,11 @@ public class DataLoader {
             if (streetUpdatesCount > 0) {
                 BulkWriteResult streetResult = streetBulkOps.execute();
                 if (streetResult.wasAcknowledged()) {
-                    System.out.println("Обновлены связи street.city: " + streetResult.getModifiedCount() + " из " + streetUpdatesCount);
+                    System.out.println("Обновлены связи street.city: " + streetResult.getModifiedCount() + " из "
+                            + streetUpdatesCount);
                 } else {
-                    System.out.println("Операции street.city выполнены (неподтвержденная запись): " + streetUpdatesCount + " операций");
+                    System.out.println("Операции street.city выполнены (неподтвержденная запись): " + streetUpdatesCount
+                            + " операций");
                 }
             } else {
                 System.out.println("Нет улиц для обновления связей street.city");
@@ -329,8 +330,7 @@ public class DataLoader {
                     if (!cityIds.isEmpty()) {
                         cityBulkOps.updateMulti(
                                 Query.query(Criteria.where("id").in(cityIds)),
-                                Update.update("region", region)
-                        );
+                                Update.update("region", region));
                         cityUpdatesCount += cityIds.size();
                     }
                 }
@@ -339,9 +339,11 @@ public class DataLoader {
             if (cityUpdatesCount > 0) {
                 BulkWriteResult cityResult = cityBulkOps.execute();
                 if (cityResult.wasAcknowledged()) {
-                    System.out.println("Обновлены связи city.region: " + cityResult.getModifiedCount() + " из " + cityUpdatesCount);
+                    System.out.println("Обновлены связи city.region: " + cityResult.getModifiedCount() + " из "
+                            + cityUpdatesCount);
                 } else {
-                    System.out.println("Операции city.region выполнены (неподтвержденная запись): " + cityUpdatesCount + " операций");
+                    System.out.println("Операции city.region выполнены (неподтвержденная запись): " + cityUpdatesCount
+                            + " операций");
                 }
             } else {
                 System.out.println("Нет городов для обновления связей city.region");
@@ -356,78 +358,68 @@ public class DataLoader {
         }
     }
 
-
     private void assignChairmenToHouses(Faker faker, List<Chairman> chairmen) {
         List<Region> regions = regionService.findAll();
-        List<Region> regionsToUpdate = new ArrayList<>();
+        List<House> housesToUpdate = new ArrayList<>();
         int houseCount = 0;
 
         for (Region region : regions) {
-            boolean regionUpdated = false;
             for (City city : region.getCities()) {
                 for (Street street : city.getStreets()) {
                     for (House house : street.getHouses()) {
                         if (!chairmen.isEmpty()) {
                             Chairman chairman = chairmen.get(faker.number().numberBetween(0, chairmen.size()));
                             house.setChairman(chairman);
+                            housesToUpdate.add(house);
                             houseCount++;
-                            regionUpdated = true;
                         }
                     }
                 }
             }
-            if (regionUpdated) {
-                regionsToUpdate.add(region);
-            }
         }
 
-        if (!regionsToUpdate.isEmpty()) {
-            mongoBulkConfig.bulkUpsert(regionsToUpdate, Region.class);
+        if (!housesToUpdate.isEmpty()) {
+            mongoBulkConfig.bulkUpsert(housesToUpdate, House.class);
             System.out.println("Bulk assigned chairmen to " + houseCount + " houses");
         }
     }
 
     private void assignResidentsToHouses(List<User> users) {
         List<Region> regions = regionService.findAll();
-        List<Region> regionsToUpdate = new ArrayList<>();
+        List<House> housesToUpdate = new ArrayList<>();
         Map<String, List<User>> usersByHouseId = new HashMap<>();
-        
+
         // Group users by house ID
         for (User user : users) {
             if (user.getHouse() != null && user.getHouse().getId() != null) {
                 usersByHouseId.computeIfAbsent(user.getHouse().getId(), k -> new ArrayList<>()).add(user);
             }
         }
-        
+
         int houseCount = 0;
         int residentCount = 0;
-        
+
         for (Region region : regions) {
-            boolean regionUpdated = false;
             for (City city : region.getCities()) {
                 for (Street street : city.getStreets()) {
                     for (House house : street.getHouses()) {
                         List<User> houseResidents = usersByHouseId.get(house.getId());
                         if (houseResidents != null && !houseResidents.isEmpty()) {
                             house.setResidents(houseResidents);
+                            housesToUpdate.add(house);
                             houseCount++;
                             residentCount += houseResidents.size();
-                            regionUpdated = true;
                         }
                     }
                 }
             }
-            if (regionUpdated) {
-                regionsToUpdate.add(region);
-            }
         }
-        
-        if (!regionsToUpdate.isEmpty()) {
-            mongoBulkConfig.bulkUpsert(regionsToUpdate, Region.class);
+
+        if (!housesToUpdate.isEmpty()) {
+            mongoBulkConfig.bulkUpsert(housesToUpdate, House.class);
             System.out.println("Bulk assigned " + residentCount + " residents to " + houseCount + " houses");
         }
     }
-
 
     private List<Chairman> createChairmen(Faker faker) {
         Chairman chairmanFotTest = Chairman.builder()
@@ -442,7 +434,6 @@ public class DataLoader {
                 .status(Status.ACTIVE)
                 .photo("uploads/avatar.jpg")
                 .build();
-
 
         List<Chairman> chairmen = new ArrayList<>();
         chairmen.add(chairmanFotTest);
@@ -468,7 +459,6 @@ public class DataLoader {
         return chairmen;
     }
 
-
     private List<User> createUsers(Faker faker) {
         List<User> users = new ArrayList<>();
         List<Region> regions = regionService.findAll();
@@ -484,10 +474,9 @@ public class DataLoader {
             }
         }
 
-        for (int i = 0; i < 200 && !houseLocations.isEmpty(); i++) {
-            HouseLocation houseLocation = getRandomEntity(houseLocations);
-            if (houseLocation == null) continue;
 
+
+        for (HouseLocation houseLocation : houseLocations) {
             User user = new User();
             user.setFirstName(faker.name().firstName());
             user.setMiddleName(faker.name().nameWithMiddle().split(" ")[1]);
@@ -538,7 +527,6 @@ public class DataLoader {
             this.street = street;
         }
     }
-
 
     private List<Bill> createBills(Faker faker) {
         List<Bill> bills = new ArrayList<>();
