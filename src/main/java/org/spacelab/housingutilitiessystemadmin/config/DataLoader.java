@@ -1,617 +1,309 @@
 package org.spacelab.housingutilitiessystemadmin.config;
 
-import com.mongodb.bulk.BulkWriteResult;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
-import org.spacelab.housingutilitiessystemadmin.config.database.MongoBulkConfig;
 import org.spacelab.housingutilitiessystemadmin.entity.*;
 import org.spacelab.housingutilitiessystemadmin.entity.location.*;
+import org.spacelab.housingutilitiessystemadmin.repository.ChairmanRepository;
+import org.spacelab.housingutilitiessystemadmin.repository.UserRepository;
 import org.spacelab.housingutilitiessystemadmin.service.*;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
+/**
+ * DataLoader - загружает базовые тестовые данные для Admin модуля.
+ * Базовые данные: Admin, адресная структура (Region → City → Street → House),
+ * Chairman, Users.
+ *
+ * Логика проверок:
+ * - Точные данные (Admin, Chairman): проверка по email, если существует - пропускаем
+ * - Случайные данные (Users): если count > 20 - пропускаем
+ */
+// DISABLED: Компонент отключен чтобы база данных не очищалась при запуске приложения
 @Component
 @RequiredArgsConstructor
 public class DataLoader {
 
+    private static final int MAX_RANDOM_RECORDS = 20;
+
     private final Faker faker;
 
     private final AdminService adminService;
-
     private final UserService userService;
-
     private final RegionService regionService;
-
     private final ChairmanService chairmanService;
-    private final ContactService contactService;
-    private final ContactSectionService contactSectionService;
-    private final BillService billService;
-    private final VoteService voteService;
+    private final ChairmanRepository chairmanRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    private final MongoBulkConfig mongoBulkConfig;
     private final MongoTemplate mongoTemplate;
 
     @EventListener(ApplicationReadyEvent.class)
     public void loadData() {
-        clearAllData();
-        adminService.createAdmin("admin@gmail.com", "admin@gmail.com");
+        System.out.println("=== Admin DataLoader: Начало загрузки данных ===");
 
-        loadDataFromCsv();
-        List<Chairman> chairmen = createChairmen(faker);
-        mongoBulkConfig.bulkInsert(chairmen, Chairman.class);
+        // 1. Создаем админа (проверка по email)
+        loadAdmin();
 
-        assignChairmenToHouses(faker, chairmen);
+        // 2. Создаем адресную структуру
+        Region region = loadRegion();
+        City city = loadCity(region);
+        Street street = loadStreet(city);
+        House house = loadHouse(street);
 
-        List<User> users = createUsers(faker);
-        mongoBulkConfig.bulkInsert(users, User.class);
+        // 3. Создаем председателя (проверка по email)
+        Chairman chairman = loadChairman(house);
 
-        assignResidentsToHouses(users);
+        // 4. Создаем тестовых пользователей (проверка на количество)
+        List<User> newUsers = loadUsers(house);
 
-        List<Bill> bills = createBills(faker);
-        mongoBulkConfig.bulkInsert(bills, Bill.class);
+        // 5. Обновляем дом с жителями и председателем
+        if (house != null) {
+            // Добавляем новых пользователей к существующим (не перезаписываем)
+            List<User> currentResidents = house.getResidents() != null ? new ArrayList<>(house.getResidents()) : new ArrayList<>();
+            for (User newUser : newUsers) {
+                if (newUser != null && currentResidents.stream().noneMatch(u -> u.getId().equals(newUser.getId()))) {
+                    currentResidents.add(newUser);
+                }
+            }
+            house.setResidents(currentResidents);
+            
+            if (chairman != null) {
+                house.setChairman(chairman);
+            }
+            mongoTemplate.save(house);
+        }
 
-        List<Contact> contacts = createContacts(faker);
-        mongoBulkConfig.bulkInsert(contacts, Contact.class);
-
-        List<ContactSection> contactSections = createContactSections(faker, contacts);
-        mongoBulkConfig.bulkInsert(contactSections, ContactSection.class);
-
-        List<Vote> votes = createVotes(faker, users);
-        mongoBulkConfig.bulkInsert(votes, Vote.class);
-
-        System.out.println("Data loading completed successfully!");
+        System.out.println("=== Admin DataLoader: Загрузка завершена! ===");
     }
 
-    private void clearAllData() {
-        userService.deleteAll();
-        regionService.deleteAll();
-        chairmanService.deleteAll();
-        contactService.deleteAll();
-        contactSectionService.deleteAll();
-        billService.deleteAll();
-        voteService.deleteAll();
+    // ============= ADMIN =============
+
+    private void loadAdmin() {
+        String adminEmail = "admin@gmail.com";
+        // Проверяем существование админа (findByEmail возвращает Admin, не Optional)
+        Admin existingAdmin = adminService.findByEmail(adminEmail);
+        if (existingAdmin != null) {
+            System.out.println("Admin уже существует: " + adminEmail + " - пропускаем");
+            return;
+        }
+        adminService.createAdmin(adminEmail, adminEmail);
+        System.out.println("Создан Admin: " + adminEmail);
     }
 
-    public void loadDataFromCsv() {
-        Map<String, Region> regionsMap = new HashMap<>();
-        Map<String, City> citiesMap = new HashMap<>();
-        Map<String, Street> streetsMap = new HashMap<>();
-        List<House> allHouses = new ArrayList<>();
+    // ============= АДРЕСНАЯ СТРУКТУРА =============
 
-        try (InputStream is = new FileInputStream("streetBDtest.csv");
-                BufferedReader br = new BufferedReader(new InputStreamReader(is, "Windows-1251"))) {
-
-            br.readLine();
-            String line;
-            int lineNumber = 1;
-
-            while ((line = br.readLine()) != null) {
-                lineNumber++;
-
-                String[] columns = line.split(";", -1);
-
-                if (columns.length < 10) {
-                    System.err.println("Недостаточно колонок в строке " + lineNumber + ": " + line);
-                    continue;
-                }
-
-                try {
-                    String regionName = columns[0].trim();
-                    String cityName = columns[4].trim();
-                    String postalCode = columns[5].trim();
-                    String streetName = columns[6].trim();
-                    String houseNumbers = columns[7].trim();
-                    String statusText = columns[9].trim();
-
-                    if (regionName.isEmpty() || cityName.isEmpty() || streetName.isEmpty()) {
-                        continue;
-                    }
-
-                    Region region = regionsMap.computeIfAbsent(regionName, name -> {
-                        Region newRegion = new Region();
-                        newRegion.setName(name);
-                        newRegion.setCities(new ArrayList<>());
-                        return newRegion;
-                    });
-
-                    String cityKey = regionName + "_" + cityName;
-                    City city = citiesMap.computeIfAbsent(cityKey, key -> {
-                        City newCity = new City();
-                        newCity.setName(cityName);
-                        newCity.setRegion(null);
-                        newCity.setStreets(new ArrayList<>());
-                        return newCity;
-                    });
-
-                    String streetKey = cityKey + "_" + streetName;
-                    Street street = streetsMap.computeIfAbsent(streetKey, key -> {
-                        Street newStreet = new Street();
-                        newStreet.setName(streetName);
-                        newStreet.setCity(null);
-                        newStreet.setHouses(new ArrayList<>());
-                        return newStreet;
-                    });
-
-                    if (!houseNumbers.isEmpty()) {
-                        String[] houses = houseNumbers.split(",");
-                        for (String houseNum : houses) {
-                            houseNum = houseNum.trim();
-                            if (!houseNum.isEmpty()) {
-                                String houseKey = streetKey + "_" + houseNum;
-
-                                String finalHouseNum = houseNum;
-                                boolean houseExists = allHouses.stream()
-                                        .anyMatch(h -> h.getHouseNumber().equals(finalHouseNum) &&
-                                                street.getHouses().contains(h));
-
-                                if (!houseExists) {
-                                    House house = new House();
-                                    house.setHouseNumber(houseNum);
-                                    house.setStreet(null);
-
-                                    if (!statusText.isEmpty()) {
-                                        house.setStatus(Status.DEACTIVATED);
-                                    } else {
-                                        house.setStatus(Status.ACTIVE);
-                                    }
-
-                                    allHouses.add(house);
-                                    street.getHouses().add(house);
-                                }
-                            }
-                        }
-                    }
-
-                    if (!region.getCities().contains(city)) {
-                        region.getCities().add(city);
-                    }
-
-                    if (!city.getStreets().contains(street)) {
-                        city.getStreets().add(street);
-                    }
-
-                } catch (Exception e) {
-                    System.err.println("Ошибка обработки строки " + lineNumber + ": " + e.getMessage());
-                    e.printStackTrace();
-                }
+    private Region loadRegion() {
+        String regionName = "Київська область";
+        List<Region> existingRegions = regionService.findAll();
+        for (Region r : existingRegions) {
+            if (regionName.equals(r.getName())) {
+                System.out.println("Region уже существует: " + regionName + " - пропускаем");
+                return r;
             }
-
-            System.out.println("Начинаем массовую вставку данных в MongoDB...");
-
-            if (!allHouses.isEmpty()) {
-                mongoBulkConfig.bulkInsert(allHouses, House.class);
-                System.out.println("Вставлено домов: " + allHouses.size());
-            }
-
-            if (!streetsMap.isEmpty()) {
-                for (Street street : streetsMap.values()) {
-                    for (House house : street.getHouses()) {
-                        house.setStreet(street);
-                    }
-                }
-
-                List<Street> streets = new ArrayList<>(streetsMap.values());
-                mongoBulkConfig.bulkInsert(streets, Street.class);
-                System.out.println("Вставлено улиц: " + streets.size());
-            }
-
-            if (!citiesMap.isEmpty()) {
-                for (City city : citiesMap.values()) {
-                    for (Street street : city.getStreets()) {
-                        street.setCity(city);
-                    }
-                }
-
-                List<City> cities = new ArrayList<>(citiesMap.values());
-                mongoBulkConfig.bulkInsert(cities, City.class);
-                System.out.println("Вставлено городов: " + cities.size());
-            }
-
-            if (!regionsMap.isEmpty()) {
-                for (Region region : regionsMap.values()) {
-                    for (City city : region.getCities()) {
-                        city.setRegion(region);
-                    }
-                }
-
-                List<Region> regions = new ArrayList<>(regionsMap.values());
-                mongoBulkConfig.bulkInsert(regions, Region.class);
-                System.out.println("Вставлено регионов: " + regions.size());
-            }
-
-            System.out.println("Данные из CSV файла успешно загружены в MongoDB!");
-
-            updateBidirectionalReferencesWithBulk(regionsMap, citiesMap, streetsMap);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Ошибка загрузки данных из CSV файла. Транзакция будет отменена.");
-            throw new RuntimeException("Не удалось загрузить данные из CSV", e);
         }
+
+        Region region = new Region();
+        region.setName(regionName);
+        region.setCities(new ArrayList<>());
+        Region saved = mongoTemplate.save(region);
+        System.out.println("Создан Region: " + regionName);
+        return saved;
     }
 
-    private void updateBidirectionalReferencesWithBulk(Map<String, Region> regionsMap,
-            Map<String, City> citiesMap,
-            Map<String, Street> streetsMap) {
-        System.out.println("Обновляем двусторонние связи через BulkOperations...");
-
-        try {
-            BulkOperations houseBulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, House.class);
-            int houseUpdatesCount = 0;
-
-            for (Street street : streetsMap.values()) {
-                if (!street.getHouses().isEmpty()) {
-                    List<String> houseIds = street.getHouses().stream()
-                            .map(House::getId)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList());
-
-                    if (!houseIds.isEmpty()) {
-                        houseBulkOps.updateMulti(
-                                Query.query(Criteria.where("id").in(houseIds)),
-                                Update.update("street", street));
-                        houseUpdatesCount += houseIds.size();
-                    }
+    private City loadCity(Region region) {
+        String cityName = "Київ";
+        if (region.getCities() != null) {
+            for (City c : region.getCities()) {
+                if (cityName.equals(c.getName())) {
+                    System.out.println("City уже существует: " + cityName + " - пропускаем");
+                    return c;
                 }
             }
-
-            if (houseUpdatesCount > 0) {
-                BulkWriteResult houseResult = houseBulkOps.execute();
-                if (houseResult.wasAcknowledged()) {
-                    System.out.println("Обновлены связи house.street: " + houseResult.getModifiedCount() + " из "
-                            + houseUpdatesCount);
-                } else {
-                    System.out.println("Операции house.street выполнены (неподтвержденная запись): " + houseUpdatesCount
-                            + " операций");
-                }
-            } else {
-                System.out.println("Нет домов для обновления связей house.street");
-            }
-
-            BulkOperations streetBulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Street.class);
-            int streetUpdatesCount = 0;
-
-            for (City city : citiesMap.values()) {
-                if (!city.getStreets().isEmpty()) {
-                    List<String> streetIds = city.getStreets().stream()
-                            .map(Street::getId)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList());
-
-                    if (!streetIds.isEmpty()) {
-                        streetBulkOps.updateMulti(
-                                Query.query(Criteria.where("id").in(streetIds)),
-                                Update.update("city", city));
-                        streetUpdatesCount += streetIds.size();
-                    }
-                }
-            }
-
-            if (streetUpdatesCount > 0) {
-                BulkWriteResult streetResult = streetBulkOps.execute();
-                if (streetResult.wasAcknowledged()) {
-                    System.out.println("Обновлены связи street.city: " + streetResult.getModifiedCount() + " из "
-                            + streetUpdatesCount);
-                } else {
-                    System.out.println("Операции street.city выполнены (неподтвержденная запись): " + streetUpdatesCount
-                            + " операций");
-                }
-            } else {
-                System.out.println("Нет улиц для обновления связей street.city");
-            }
-
-            BulkOperations cityBulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, City.class);
-            int cityUpdatesCount = 0;
-
-            for (Region region : regionsMap.values()) {
-                if (!region.getCities().isEmpty()) {
-                    List<String> cityIds = region.getCities().stream()
-                            .map(City::getId)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList());
-
-                    if (!cityIds.isEmpty()) {
-                        cityBulkOps.updateMulti(
-                                Query.query(Criteria.where("id").in(cityIds)),
-                                Update.update("region", region));
-                        cityUpdatesCount += cityIds.size();
-                    }
-                }
-            }
-
-            if (cityUpdatesCount > 0) {
-                BulkWriteResult cityResult = cityBulkOps.execute();
-                if (cityResult.wasAcknowledged()) {
-                    System.out.println("Обновлены связи city.region: " + cityResult.getModifiedCount() + " из "
-                            + cityUpdatesCount);
-                } else {
-                    System.out.println("Операции city.region выполнены (неподтвержденная запись): " + cityUpdatesCount
-                            + " операций");
-                }
-            } else {
-                System.out.println("Нет городов для обновления связей city.region");
-            }
-
-            System.out.println("Все двусторонние связи успешно установлены через BulkOperations!");
-
-        } catch (Exception e) {
-            System.err.println("Ошибка при обновлении двусторонних связей: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Не удалось обновить двусторонние связи", e);
         }
+
+        City city = new City();
+        city.setName(cityName);
+        city.setRegion(region);
+        city.setStreets(new ArrayList<>());
+        City saved = mongoTemplate.save(city);
+
+        if (region.getCities() == null) {
+            region.setCities(new ArrayList<>());
+        }
+        region.getCities().add(saved);
+        mongoTemplate.save(region);
+
+        System.out.println("Создан City: " + cityName);
+        return saved;
     }
 
-    private void assignChairmenToHouses(Faker faker, List<Chairman> chairmen) {
-        List<Region> regions = regionService.findAll();
-        List<House> housesToUpdate = new ArrayList<>();
-        int houseCount = 0;
-
-        for (Region region : regions) {
-            for (City city : region.getCities()) {
-                for (Street street : city.getStreets()) {
-                    for (House house : street.getHouses()) {
-                        if (!chairmen.isEmpty()) {
-                            Chairman chairman = chairmen.get(faker.number().numberBetween(0, chairmen.size()));
-                            house.setChairman(chairman);
-                            housesToUpdate.add(house);
-                            houseCount++;
-                        }
-                    }
+    private Street loadStreet(City city) {
+        String streetName = "вул. Хрещатик";
+        if (city.getStreets() != null) {
+            for (Street s : city.getStreets()) {
+                if (streetName.equals(s.getName())) {
+                    System.out.println("Street уже существует: " + streetName + " - пропускаем");
+                    return s;
                 }
             }
         }
 
-        if (!housesToUpdate.isEmpty()) {
-            mongoBulkConfig.bulkUpsert(housesToUpdate, House.class);
-            System.out.println("Bulk assigned chairmen to " + houseCount + " houses");
+        Street street = new Street();
+        street.setName(streetName);
+        street.setCity(city);
+        street.setHouses(new ArrayList<>());
+        Street saved = mongoTemplate.save(street);
+
+        if (city.getStreets() == null) {
+            city.setStreets(new ArrayList<>());
         }
+        city.getStreets().add(saved);
+        mongoTemplate.save(city);
+
+        System.out.println("Создан Street: " + streetName);
+        return saved;
     }
 
-    private void assignResidentsToHouses(List<User> users) {
-        List<Region> regions = regionService.findAll();
-        List<House> housesToUpdate = new ArrayList<>();
-        Map<String, List<User>> usersByHouseId = new HashMap<>();
-
-        // Group users by house ID
-        for (User user : users) {
-            if (user.getHouse() != null && user.getHouse().getId() != null) {
-                usersByHouseId.computeIfAbsent(user.getHouse().getId(), k -> new ArrayList<>()).add(user);
-            }
-        }
-
-        int houseCount = 0;
-        int residentCount = 0;
-
-        for (Region region : regions) {
-            for (City city : region.getCities()) {
-                for (Street street : city.getStreets()) {
-                    for (House house : street.getHouses()) {
-                        List<User> houseResidents = usersByHouseId.get(house.getId());
-                        if (houseResidents != null && !houseResidents.isEmpty()) {
-                            house.setResidents(houseResidents);
-                            housesToUpdate.add(house);
-                            houseCount++;
-                            residentCount += houseResidents.size();
-                        }
-                    }
+    private House loadHouse(Street street) {
+        String houseNumber = "15";
+        if (street.getHouses() != null) {
+            for (House h : street.getHouses()) {
+                if (houseNumber.equals(h.getHouseNumber())) {
+                    System.out.println("House уже существует: " + houseNumber + " - пропускаем");
+                    return h;
                 }
             }
         }
 
-        if (!housesToUpdate.isEmpty()) {
-            mongoBulkConfig.bulkUpsert(housesToUpdate, House.class);
-            System.out.println("Bulk assigned " + residentCount + " residents to " + houseCount + " houses");
+        House house = new House();
+        house.setHouseNumber(houseNumber);
+        house.setStreet(street);
+        house.setStatus(Status.ACTIVE);
+        house.setResidents(new ArrayList<>());
+        House saved = mongoTemplate.save(house);
+
+        if (street.getHouses() == null) {
+            street.setHouses(new ArrayList<>());
         }
+        street.getHouses().add(saved);
+        mongoTemplate.save(street);
+
+        System.out.println("Создан House: " + houseNumber);
+        return saved;
     }
 
-    private List<Chairman> createChairmen(Faker faker) {
-        Chairman chairmanFotTest = Chairman.builder()
+    // ============= ПРЕДСЕДАТЕЛЬ =============
+
+    private Chairman loadChairman(House house) {
+        String chairmanEmail = "chairmen@gmail.com";
+
+        // Проверяем существование председателя по email (используем repository)
+        Optional<Chairman> existing = chairmanRepository.findByEmail(chairmanEmail);
+        if (existing.isPresent()) {
+            System.out.println("Chairman уже существует: " + chairmanEmail + " - пропускаем");
+            return existing.get();
+        }
+
+        Chairman chairman = Chairman.builder()
                 .id(UUID.randomUUID().toString())
-                .lastName("TestLastName")
-                .firstName("TestFirstName")
-                .middleName("TestMiddleName")
+                .lastName("Петренко")
+                .firstName("Іван")
+                .middleName("Сергійович")
                 .phone("+380501234567")
                 .login("Chairman")
-                .email("chairmen@gmail")
-                .password(passwordEncoder.encode("chairmen@gmail"))
+                .email(chairmanEmail)
+                .password(passwordEncoder.encode(chairmanEmail))
                 .status(Status.ACTIVE)
                 .photo("uploads/avatar.jpg")
+                .house(house)
+                .enabled(true)
+                .role(Role.USER)
                 .build();
 
-        List<Chairman> chairmen = new ArrayList<>();
-        chairmen.add(chairmanFotTest);
-        for (int i = 0; i < 10; i++) {
-            Chairman chairman = new Chairman();
-            chairman.setId(UUID.randomUUID().toString());
-            chairman.setLastName(faker.name().lastName());
-            chairman.setFirstName(faker.name().firstName());
-            chairman.setMiddleName(faker.name().nameWithMiddle().split(" ")[1]);
-            chairman.setPhone(faker.phoneNumber().phoneNumber());
-            chairman.setEmail(faker.internet().emailAddress());
-            chairman.setStatus(getRandomEnum(Status.class));
-            chairman.setLogin(faker.internet().username());
-            chairman.setPassword(passwordEncoder.encode(faker.internet().password()));
-
-            File avatarFile = new File("uploads/avatar.jpg");
-            if (avatarFile.exists() && avatarFile.isFile()) {
-                chairman.setPhoto("uploads/avatar.jpg");
-            }
-
-            chairmen.add(chairman);
-        }
-        return chairmen;
+        Chairman saved = mongoTemplate.save(chairman);
+        System.out.println("Создан Chairman: " + chairmanEmail);
+        return saved;
     }
 
-    private List<User> createUsers(Faker faker) {
+    // ============= ПОЛЬЗОВАТЕЛИ =============
+
+    private List<User> loadUsers(House house) {
+        List<User> existingUsers = userService.findAll();
+
+        // Если пользователей больше MAX_RANDOM_RECORDS - не добавляем новых
+        if (existingUsers.size() >= MAX_RANDOM_RECORDS) {
+            System.out.println("Users: количество записей (" + existingUsers.size() + ") >= " + MAX_RANDOM_RECORDS + " - пропускаем");
+            return existingUsers;
+        }
+
         List<User> users = new ArrayList<>();
-        List<Region> regions = regionService.findAll();
-        List<HouseLocation> houseLocations = new ArrayList<>();
 
-        for (Region region : regions) {
-            for (City city : region.getCities()) {
-                for (Street street : city.getStreets()) {
-                    for (House house : street.getHouses()) {
-                        houseLocations.add(new HouseLocation(house, city, street, region));
-                    }
-                }
-            }
-        }
+        // Создаем конкретных тестовых пользователей (проверка по email)
+        users.add(createUserIfNotExists("user@gmail.com", "Олександр", "Коваленко", "Петрович",
+                "+380991234567", "10", 56.0, house));
+        users.add(createUserIfNotExists("user2@gmail.com", "Марія", "Шевченко", "Іванівна",
+                "+380992345678", "11", 48.5, house));
+        users.add(createUserIfNotExists("user3@gmail.com", "Андрій", "Бондаренко", "Олегович",
+                "+380993456789", "15", 72.3, house));
+        users.add(createUserIfNotExists("user4@gmail.com", "Наталія", "Мельник", "Василівна",
+                "+380994567890", "22", 65.0, house));
+        users.add(createUserIfNotExists("user5@gmail.com", "Віталій", "Лисенко", "Андрійович",
+                "+380995678901", "33", 88.2, house));
+        users.add(createUserIfNotExists("user6@gmail.com", "Олена", "Ткаченко", "Миколаївна",
+                "+380996789012", "45", 42.5, house));
+        users.add(createUserIfNotExists("user7@gmail.com", "Дмитро", "Кравченко", "Ігорович",
+                "+380997890123", "56", 95.0, house));
+        users.add(createUserIfNotExists("user8@gmail.com", "Світлана", "Савченко", "Олексіївна",
+                "+380998901234", "67", 55.5, house));
 
+        // Убираем null значения (если пользователь уже существовал)
+        users.removeIf(Objects::isNull);
 
-
-        for (HouseLocation houseLocation : houseLocations) {
-            User user = new User();
-            user.setFirstName(faker.name().firstName());
-            user.setMiddleName(faker.name().nameWithMiddle().split(" ")[1]);
-            user.setLastName(faker.name().lastName());
-            user.setPhone(faker.phoneNumber().phoneNumber());
-            user.setEmail(faker.internet().emailAddress());
-            user.setApartmentNumber(String.valueOf(faker.number().numberBetween(1, 200)));
-            user.setApartmentArea(faker.number().randomDouble(2, 30, 150));
-            user.setAccountNumber(faker.finance().iban());
-            user.setStatus(getRandomEnum(Status.class));
-            user.setPassword(faker.internet().password());
-            File avatarFile = new File("uploads/avatar.jpg");
-            if (avatarFile.exists() && avatarFile.isFile()) {
-                user.setPhoto("uploads/avatar.jpg");
-            }
-
-            House userHouse = new House();
-            userHouse.setId(houseLocation.house.getId());
-            userHouse.setHouseNumber(houseLocation.house.getHouseNumber());
-            userHouse.setStatus(houseLocation.house.getStatus());
-            userHouse.setChairman(houseLocation.house.getChairman());
-
-            City userCity = new City();
-            userCity.setId(houseLocation.city.getId());
-            userCity.setName(houseLocation.city.getName());
-
-            Street userStreet = new Street();
-            userStreet.setId(houseLocation.street.getId());
-            userStreet.setName(houseLocation.street.getName());
-
-            user.setHouse(userHouse);
-            user.setCity(userCity);
-            user.setStreet(userStreet);
-
-            users.add(user);
-        }
+        System.out.println("Создано новых пользователей: " + users.size());
         return users;
     }
 
-    private static class HouseLocation {
-        final House house;
-        final City city;
-        final Street street;
-
-        HouseLocation(House house, City city, Street street, Region region) {
-            this.house = house;
-            this.city = city;
-            this.street = street;
-        }
-    }
-
-    private List<Bill> createBills(Faker faker) {
-        List<Bill> bills = new ArrayList<>();
-        for (int i = 0; i < 12; i++) {
-            Bill bill = new Bill();
-            bill.setId(UUID.randomUUID().toString());
-            bill.setDate(LocalDate.now().minusDays(faker.number().numberBetween(1, 365)));
-            bills.add(bill);
-        }
-        return bills;
-    }
-
-    private List<Contact> createContacts(Faker faker) {
-        List<Contact> contacts = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
-            Contact contact = new Contact();
-            contact.setId(UUID.randomUUID().toString());
-            contact.setFullName(faker.name().fullName());
-            contact.setRole(faker.options().option("Manager", "Accountant", "Technician", "Administrator", "Engineer"));
-            contact.setPhone(faker.phoneNumber().phoneNumber());
-            contact.setPhoto(new byte[0]);
-            contact.setDescription(faker.lorem().sentence());
-            contacts.add(contact);
-        }
-        return contacts;
-    }
-
-    private List<ContactSection> createContactSections(Faker faker, List<Contact> contacts) {
-        List<ContactSection> sections = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            ContactSection section = new ContactSection();
-            section.setId(UUID.randomUUID().toString());
-            section.setTitle(faker.options().option("Management", "Technical Support", "Accounting", "Maintenance"));
-            section.setContent(faker.lorem().paragraph());
-
-            int contactCount = faker.number().numberBetween(2, 5);
-            List<Contact> sectionContacts = new ArrayList<>();
-            for (int j = 0; j < contactCount; j++) {
-                sectionContacts.add(contacts.get(faker.number().numberBetween(0, contacts.size())));
-            }
-            section.setContacts(sectionContacts);
-
-            sections.add(section);
-        }
-        return sections;
-    }
-
-    private List<Vote> createVotes(Faker faker, List<User> users) {
-        List<Vote> votes = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Vote vote = new Vote();
-            vote.setId(UUID.randomUUID().toString());
-            vote.setTitle(faker.lorem().sentence(3));
-            vote.setDescription(faker.lorem().paragraph());
-            vote.setStartTime(new Date());
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.DAY_OF_MONTH, faker.number().numberBetween(1, 30));
-            vote.setEndTime(calendar.getTime());
-            vote.setQuorumArea(faker.number().randomDouble(2, 50, 100));
-            vote.setStatus(faker.options().option("active", "completed", "pending"));
-
-            int totalVoters = faker.number().numberBetween(3, 8);
-            vote.setForVotesCount(faker.number().numberBetween(0, totalVoters));
-            vote.setAgainstVotesCount(faker.number().numberBetween(0, totalVoters - vote.getForVotesCount()));
-            vote.setAbstentionsCount(totalVoters - vote.getForVotesCount() - vote.getAgainstVotesCount());
-
-            votes.add(vote);
-        }
-        return votes;
-    }
-
-    public <T> T getRandomEntity(Collection<T> collection) {
-        if (collection.isEmpty()) {
+    private User createUserIfNotExists(String email, String firstName, String lastName, String middleName,
+                                        String phone, String apartment, Double area, House house) {
+        // Проверяем существование по email (используем repository)
+        Optional<User> existing = userRepository.findByEmail(email);
+        if (existing.isPresent()) {
+            System.out.println("  User уже существует: " + email + " - пропускаем");
             return null;
         }
-        int index = new Random().nextInt(collection.size());
-        List<T> list = new ArrayList<>(collection);
-        return list.get(index);
+
+        User user = new User();
+        user.setEmail(email);
+        user.setLogin(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setMiddleName(middleName);
+        user.setPhone(phone);
+        user.setApartmentNumber(apartment);
+        user.setApartmentArea(area);
+        user.setAccountNumber(generateAccountNumber());
+        user.setStatus(Status.ACTIVE);
+        user.setPassword(passwordEncoder.encode(email));
+        user.setPhoto("uploads/avatar.jpg");
+        user.setHouse(house);
+        user.setStreet(house.getStreet());
+        user.setCity(house.getStreet().getCity());
+
+        User saved = mongoTemplate.save(user);
+        System.out.println("  Создан User: " + email);
+        return saved;
     }
 
-    private <T extends Enum<T>> T getRandomEnum(Class<T> enumClass) {
-        T[] enumConstants = enumClass.getEnumConstants();
-        if (enumConstants == null || enumConstants.length == 0) {
-            return null;
-        }
-        return enumConstants[new Random().nextInt(enumConstants.length)];
+    private String generateAccountNumber() {
+        return String.format("%04d-%04d-%04d-%04d",
+                faker.number().numberBetween(0, 9999),
+                faker.number().numberBetween(0, 9999),
+                faker.number().numberBetween(0, 9999),
+                faker.number().numberBetween(0, 9999));
     }
 }

@@ -16,6 +16,12 @@ public interface ChairmanMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "photo", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "online", ignore = true)
+    @Mapping(target = "lastActiveAt", ignore = true)
+    @Mapping(target = "conversations", ignore = true)
+    @Mapping(target = "house", ignore = true)
     Chairman toEntity(ChairmanRequest chairmanRequest);
 
     @Mapping(target = "id", source = "id")
@@ -50,6 +56,12 @@ public interface ChairmanMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "photo", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "online", ignore = true)
+    @Mapping(target = "lastActiveAt", ignore = true)
+    @Mapping(target = "conversations", ignore = true)
+    @Mapping(target = "house", ignore = true)
     void partialUpdate(ChairmanRequest chairmanRequest, @MappingTarget Chairman chairman);
 }
 

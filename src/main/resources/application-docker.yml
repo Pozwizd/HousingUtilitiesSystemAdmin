@@ -1,8 +1,8 @@
 spring:
   data:
     mongodb:
-      # For Docker use service names with authentication
-      uri: mongodb://housingapp:HousingApp2024!@mongo1:27017,mongo2:27017,mongo3:27017/HousingUtilitiesSystemDB?replicaSet=rs0&authSource=HousingUtilitiesSystemDB
+      # MongoDB URI is passed via environment variable in docker-compose
+      uri: ${SPRING_DATA_MONGODB_URI}
 
   security:
     oauth2:

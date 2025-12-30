@@ -30,7 +30,7 @@ services:
       - housing-services-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -44,32 +44,6 @@ services:
         hard: 65536
 
   # ============================================================================
-  # Kibana - Web UI для Elasticsearch (опционально)
-  # ============================================================================
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.16.1
-    container_name: kibana-services
-    hostname: kibana
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=
-      - ELASTICSEARCH_PASSWORD=
-    networks:
-      - housing-services-network
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-
-  # ============================================================================
   # Redis - In-memory хранилище для кеширования и сессий
   # ============================================================================
   redis:
@@ -79,40 +53,18 @@ services:
     ports:
       - "6379:6379"
     command: >
-      redis-server
-      --appendonly yes
-      --appendfsync everysec
-      --maxmemory 256mb
-      --maxmemory-policy allkeys-lru
+      redis-server --appendonly yes --appendfsync everysec --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis-services-data:/data
     networks:
       - housing-services-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 3s
       retries: 5
       start_period: 10s
-
-  # ============================================================================
-  # Redis Commander - Web UI для Redis (опционально)
-  # ============================================================================
-  redis-commander:
-    image: ghcr.io/joeferner/redis-commander:latest
-    container_name: redis-commander-services
-    hostname: redis-commander
-    ports:
-      - "8081:8081"
-    environment:
-      - REDIS_HOSTS=local:redis:6379
-    networks:
-      - housing-services-network
-    depends_on:
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
 
 # ==============================================================================
 # Persistent Data Volumes - Именованные volumes для хранения данных

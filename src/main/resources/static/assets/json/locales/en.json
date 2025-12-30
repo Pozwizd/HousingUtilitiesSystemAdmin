@@ -42,6 +42,7 @@
     "noDataFound": "No data found",
     "pagination": "Page navigation",
     "validationFailed": "Validation failed",
+    "back": "Back",
     "statuses": {
       "new": "New",
       "active": "Active",
@@ -85,6 +86,10 @@
     "amount": "Amount",
     "date": "Date",
     "noBillsData": "No bills data",
+    "bills": "User Bills",
+    "billPeriod": "Period",
+    "billAmount": "Amount",
+    "billDate": "Date",
     "back": "Back",
     "uploadPhoto": "Upload Photo",
     "reset": "Reset",
@@ -223,6 +228,8 @@
     "deleteError": "Failed to delete house",
     "notFound": "Houses not found",
     "loadError": "Failed to load houses data",
+    "houseLabel": "House",
+    "chairmanLabel": "Chairman:",
     "statusOptions": {
       "new": "New",
       "active": "Active",
@@ -268,6 +275,9 @@
     "deleteError": "Failed to delete chairman",
     "notFound": "Chairmen not found",
     "loadError": "Failed to load chairmen data",
+    "allStatuses": "All statuses",
+    "emailLabel": "Email:",
+    "phoneLabel": "Phone:",
     "statusOptions": {
       "new": "New",
       "active": "Active",
@@ -376,7 +386,13 @@
     "wrongEmail": "Invalid email",
     "fieldCannotBeEmpty": "Field cannot be empty",
     "wrongPassword": "Invalid password",
-    "passwordsDoNotMatch": "Passwords do not match"
+    "passwordsDoNotMatch": "Passwords do not match",
+    "welcome": "Welcome! 👋",
+    "signInMessage": "Please sign-in to your account",
+    "registrationSuccess": "Registration successful! You can now log in.",
+    "newUser": "New user?",
+    "createAccount": "Create an account",
+    "or": "or"
   },
   "errors": {
     "asyncOperationFailed": "Async operation failed",

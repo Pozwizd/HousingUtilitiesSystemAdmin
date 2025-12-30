@@ -43,6 +43,12 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "login", source = "login")
     @Mapping(target = "password", source = "password")
+    @Mapping(target = "online", ignore = true)
+    @Mapping(target = "lastActiveAt", ignore = true)
+    @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "conversations", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "house", ignore = true)
     User toEntity(UserRequest userRequest);
 
     @Mapping(target = "id", expression = "java(user.getId() != null ? user.getId().toString() : null)")
@@ -75,5 +81,11 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "bills", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "online", ignore = true)
+    @Mapping(target = "lastActiveAt", ignore = true)
+    @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "conversations", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "house", ignore = true)
     void partialUpdate(UserRequest userRequest, @MappingTarget User user);
 }

@@ -1,3 +1,9 @@
+# ============================================================================
+# Docker Compose - DEVELOPMENT Configuration
+# ⚠️  WARNING: Contains hardcoded DEV passwords - DO NOT use in production!
+# ⚠️  For PRODUCTION use: docker-compose.prod.yml with environment variables
+# ============================================================================
+
 services:
   # ============================================================================
   # MongoDB Replica Set - Три узла для обеспечения отказоустойчивости

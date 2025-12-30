@@ -1,9 +1,10 @@
 // ============================================================================
 // MongoDB Replica Set Initialization Script
 // Скрипт автоматической инициализации и настройки replica set с аутентификацией
+// 
+// ⚠️  WARNING: This script contains DEV passwords!
+// ⚠️  For PRODUCTION use docker-compose.prod.yml with environment variables!
 // ============================================================================
-
-print("Waiting for MongoDB to be ready...");
 
 // ============================================================================
 // Инициализация Replica Set

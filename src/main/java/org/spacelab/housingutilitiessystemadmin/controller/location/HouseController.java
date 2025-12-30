@@ -95,7 +95,9 @@ public class HouseController {
 
     @GetMapping({"/", ""})
     public ModelAndView getHousesPage(Model model) {
-        return new ModelAndView("house/houses").addObject("pageActive", "houses");
+        return new ModelAndView("house/houses")
+                .addObject("pageTitle", "houses.title")
+                .addObject("pageActive", "houses");
     }
 
     @GetMapping("/create")
@@ -118,7 +120,7 @@ public class HouseController {
 
     @GetMapping("/card/{id}")
     public ModelAndView showHouseProfile(@PathVariable String id, Model model) {
-        model.addAttribute("pageTitle", "houses.house");
+        model.addAttribute("pageTitle", "houses.houseProfile");
         model.addAttribute("pageActive", "houses");
         model.addAttribute("opened", true);
         return new ModelAndView("house/houseCard");

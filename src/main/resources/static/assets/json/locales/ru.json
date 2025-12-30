@@ -42,6 +42,7 @@
     "noDataFound": "Данные не найдены",
     "pagination": "Навигация по страницам",
     "validationFailed": "Ошибка валидации",
+    "back": "Назад",
     "statuses": {
       "new": "Новый",
       "active": "Активный",
@@ -85,6 +86,10 @@
     "amount": "Сумма",
     "date": "Дата",
     "noBillsData": "Нет данных о счетах",
+    "bills": "Счета пользователя",
+    "billPeriod": "Период",
+    "billAmount": "Сумма",
+    "billDate": "Дата",
     "back": "Назад",
     "uploadPhoto": "Загрузить фото",
     "reset": "Сбросить",
@@ -223,6 +228,8 @@
     "deleteError": "Не удалось удалить дом",
     "notFound": "Дома не найдены",
     "loadError": "Не удалось загрузить данные домов",
+    "houseLabel": "Дом",
+    "chairmanLabel": "Председатель:",
     "statusOptions": {
       "new": "Новый",
       "active": "Активный",
@@ -268,6 +275,9 @@
     "deleteError": "Не удалось удалить председателя",
     "notFound": "Председатели не найдены",
     "loadError": "Не удалось загрузить данные председателей",
+    "allStatuses": "Все статусы",
+    "emailLabel": "Email:",
+    "phoneLabel": "Телефон:",
     "statusOptions": {
       "new": "Новый",
       "active": "Активный",
@@ -376,7 +386,13 @@
     "wrongEmail": "Неверная почта",
     "fieldCannotBeEmpty": "Поле не может быть пустым",
     "wrongPassword": "Неверный пароль",
-    "passwordsDoNotMatch": "Пароли не совпадают"
+    "passwordsDoNotMatch": "Пароли не совпадают",
+    "welcome": "Добро пожаловать! 👋",
+    "signInMessage": "Войдите в свой аккаунт",
+    "registrationSuccess": "Регистрация успешна! Теперь вы можете войти в систему.",
+    "newUser": "Новый пользователь?",
+    "createAccount": "Создать аккаунт",
+    "or": "или"
   },
   "errors": {
     "asyncOperationFailed": "Ошибка асинхронной операции",

@@ -10,8 +10,9 @@ public class Contact {
     @Id
     private String id;
     private String fullName;
+    private String contactType; // "chairman" or "employee"
     private String role;
     private String phone;
-    private byte[] photo;
+    private String photoPath; // Path to uploaded photo file
     private String description;
 }

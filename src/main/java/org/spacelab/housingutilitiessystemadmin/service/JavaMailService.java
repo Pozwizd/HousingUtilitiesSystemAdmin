@@ -248,28 +248,5 @@ public class JavaMailService {
         return templateEngine.process("email/emailTemplate", context);
     }
 
-    /**
-     * Построение HTML контента письма из шаблона с произвольными переменными
-     *
-     * @param token       токен для сброса пароля
-     * @param httpRequest текущий HTTP запрос для получения базового URL
-     * @return HTML контент с ссылкой для изменения пароля
-     * @deprecated Используйте {@link #buildPasswordResetLink(String, HttpServletRequest)} вместо этого
-     */
-    @Deprecated
-    private String build(String token, HttpServletRequest httpRequest) {
-        Context context = new Context();
-        final String fullUrl = ServletUriComponentsBuilder.fromRequestUri(httpRequest)
-                .build()
-                .toUriString();
 
-        log.info("url: {}", fullUrl);
-
-        int in = fullUrl.lastIndexOf("/");
-        String baseUrl = fullUrl.substring(0, in);
-        String l = baseUrl + "/changePassword?token=" + token;
-
-        context.setVariable("link", l);
-        return templateEngine.process("email/emailTemplate", context);
-    }
 }

@@ -42,6 +42,7 @@
     "noDataFound": "Дані не знайдено",
     "pagination": "Навігація по сторінках",
     "validationFailed": "Помилка валідації",
+    "back": "Назад",
     "statuses": {
       "new": "Новий",
       "active": "Активний",
@@ -85,6 +86,10 @@
     "amount": "Сума",
     "date": "Дата",
     "noBillsData": "Немає даних про рахунки",
+    "bills": "Рахунки користувача",
+    "billPeriod": "Період",
+    "billAmount": "Сума",
+    "billDate": "Дата",
     "back": "Назад",
     "uploadPhoto": "Завантажити фото",
     "reset": "Скинути",
@@ -223,6 +228,8 @@
     "deleteError": "Не вдалося видалити будинок",
     "notFound": "Будинки не знайдені",
     "loadError": "Не вдалося завантажити дані будинків",
+    "houseLabel": "Будинок",
+    "chairmanLabel": "Голова:",
     "statusOptions": {
       "new": "Новий",
       "active": "Активний",
@@ -268,6 +275,9 @@
     "deleteError": "Не вдалося видалити голову",
     "notFound": "Голови не знайдені",
     "loadError": "Не вдалося завантажити дані голів",
+    "allStatuses": "Всі статуси",
+    "emailLabel": "Email:",
+    "phoneLabel": "Телефон:",
     "statusOptions": {
       "new": "Новий",
       "active": "Активний",
@@ -376,7 +386,13 @@
     "wrongEmail": "Невірна пошта",
     "fieldCannotBeEmpty": "Поле не може бути порожнім",
     "wrongPassword": "Невірний пароль",
-    "passwordsDoNotMatch": "Паролі не співпадають"
+    "passwordsDoNotMatch": "Паролі не співпадають",
+    "welcome": "Ласкаво просимо! 👋",
+    "signInMessage": "Увійдіть у свій акаунт",
+    "registrationSuccess": "Реєстрація успішна! Тепер ви можете увійти в систему.",
+    "newUser": "Новий користувач?",
+    "createAccount": "Створити акаунт",
+    "or": "або"
   },
   "errors": {
     "asyncOperationFailed": "Помилка асинхронної операції",

@@ -20,12 +20,7 @@ spring:
         enabled: true
 
     mongodb:
-      host: ${MONGODB_HOST}
-      port: ${MONGODB_PORT}
-      database: ${MONGODB_DATABASE}
-      username: ${MONGODB_USERNAME}
-      password: ${MONGODB_PASSWORD}
-      authentication-database: admin
+      uri: ${MONGODB_URI:mongodb://mongo1:27017,mongo2:27018,mongo3:27019/${MONGODB_DATABASE:HousingUtilitiesSystemDB}?replicaSet=rs0}
 
     redis:
       host: ${REDIS_HOST:localhost}

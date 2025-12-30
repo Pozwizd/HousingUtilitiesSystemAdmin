@@ -85,7 +85,9 @@ public class ChairmanController {
 
     @GetMapping({"/", ""})
     public ModelAndView getChairmenPage(Model model) {
-        return new ModelAndView("chairman/chairmen").addObject("pageActive", "chairmen");
+        return new ModelAndView("chairman/chairmen")
+                .addObject("pageTitle", "chairmen.title")
+                .addObject("pageActive", "chairmen");
     }
 
     @GetMapping("/create")
@@ -108,7 +110,7 @@ public class ChairmanController {
 
     @GetMapping("/card/{id}")
     public ModelAndView showChairmanProfile(@PathVariable String id, Model model) {
-        model.addAttribute("pageTitle", "chairmen.chairman");
+        model.addAttribute("pageTitle", "chairmen.chairmanProfile");
         model.addAttribute("pageActive", "chairmen");
         model.addAttribute("opened", true);
         return new ModelAndView("chairman/chairmanCard");

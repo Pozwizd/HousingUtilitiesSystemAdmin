@@ -18,7 +18,9 @@ public class UserViewController {
 
     @GetMapping({"/", ""})
     public ModelAndView getHorizontalPage(Model model) {
-        return new ModelAndView("user/users").addObject("pageActive", "users");
+        return new ModelAndView("user/users")
+                .addObject("pageTitle", "users.title")
+                .addObject("pageActive", "users");
     }
 
     @GetMapping("/create")
@@ -41,7 +43,7 @@ public class UserViewController {
 
     @GetMapping("/card/{id}")
     public ModelAndView showUserProfile(@PathVariable ObjectId id, Model model) {
-        model.addAttribute("pageTitle", "users.user");
+        model.addAttribute("pageTitle", "users.userProfile");
         model.addAttribute("pageActive", "users");
         model.addAttribute("opened", true);
         return new ModelAndView("user/userCard");
