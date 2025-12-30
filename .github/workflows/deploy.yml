@@ -183,13 +183,6 @@ jobs:
             docker stop $CONTAINER_NAME 2>/dev/null || true
             docker rm $CONTAINER_NAME 2>/dev/null || true
             
-            # Kill any process using port 8080
-            echo "Freeing port 8080..."
-            fuser -k 8080/tcp 2>/dev/null || true
-            # Also stop any docker container using port 8080
-            docker ps -q --filter "publish=8080" | xargs -r docker stop 2>/dev/null || true
-            sleep 2
-            
             # Create uploads directory
             mkdir -p /opt/housing-uploads
             
@@ -199,13 +192,15 @@ jobs:
               --name $CONTAINER_NAME \
               --network $NETWORK_NAME \
               --restart unless-stopped \
-              -p 8080:8080 \
+              -p 8081:8080 \
               -e SPRING_DATA_MONGODB_URI="mongodb://mongo-housing:27017/HousingUtilitiesSystemDB" \
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e OAUTH_GOOGLE_CLIENT_ID="${{ secrets.OAUTH_GOOGLE_CLIENT_ID }}" \
               -e OAUTH_GOOGLE_CLIENT_SECRET="${{ secrets.OAUTH_GOOGLE_CLIENT_SECRET }}" \
               -e SENDGRID_API_KEY="${{ secrets.SENDGRID_API_KEY }}" \
               -e SENDGRID_FROM_EMAIL="${{ secrets.SENDGRID_FROM_EMAIL }}" \
+              -e MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" \
+              -e MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
               -e ELASTICSEARCH_URIS="http://elasticsearch-housing:9200" \
               -e SPRING_DATA_REDIS_HOST="redis-housing" \
               -e SPRING_PROFILES_ACTIVE="docker" \
@@ -241,7 +236,7 @@ jobs:
             
             # Check application health (with retry)
             for i in 1 2 3 4 5; do
-              if curl -sf http://localhost:8080/admin/login > /dev/null 2>&1; then
+              if curl -sf http://localhost:8081/admin/login > /dev/null 2>&1; then
                 echo "✅ Application is healthy"
                 exit 0
               fi
