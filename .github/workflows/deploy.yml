@@ -183,6 +183,13 @@ jobs:
             docker stop $CONTAINER_NAME 2>/dev/null || true
             docker rm $CONTAINER_NAME 2>/dev/null || true
             
+            # Kill any process using port 8080
+            echo "Freeing port 8080..."
+            fuser -k 8080/tcp 2>/dev/null || true
+            # Also stop any docker container using port 8080
+            docker ps -q --filter "publish=8080" | xargs -r docker stop 2>/dev/null || true
+            sleep 2
+            
             # Create uploads directory
             mkdir -p /opt/housing-uploads
             
