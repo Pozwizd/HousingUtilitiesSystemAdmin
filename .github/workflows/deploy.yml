@@ -7,7 +7,7 @@ on:
 
 env:
   DOCKER_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/housing-utilities-admin
+  IMAGE_NAME: pozwizd/housing-utilities-admin
   CONTAINER_NAME: housing-utilities-admin
 
 jobs:
@@ -115,7 +115,7 @@ jobs:
             
             # Variables
             CONTAINER_NAME="housing-utilities-admin"
-            IMAGE="ghcr.io/${{ github.repository_owner }}/housing-utilities-admin:latest"
+            IMAGE="ghcr.io/pozwizd/housing-utilities-admin:latest"
             NETWORK_NAME="housing-network"
             
             # Login to GitHub Container Registry
