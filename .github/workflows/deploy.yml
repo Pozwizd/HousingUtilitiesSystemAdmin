@@ -119,7 +119,7 @@ jobs:
             NETWORK_NAME="housing-network"
             
             # Login to GitHub Container Registry
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u pozwizd --password-stdin
             
             # Create network if not exists
             docker network create $NETWORK_NAME 2>/dev/null || true
