@@ -124,42 +124,55 @@ jobs:
             # Create network if not exists
             docker network create $NETWORK_NAME 2>/dev/null || true
             
-            # Ensure infrastructure services are running
-            if ! docker ps | grep -q "mongo"; then
+            # Ensure MongoDB is running (internal only, no port exposure)
+            if ! docker ps --format '{{.Names}}' | grep -q "^mongo-housing$"; then
               echo "Starting MongoDB..."
+              docker rm mongo-housing 2>/dev/null || true
               docker run -d \
-                --name mongo \
+                --name mongo-housing \
                 --network $NETWORK_NAME \
                 --restart unless-stopped \
-                -p 27017:27017 \
-                -v mongo-data:/data/db \
+                -v mongo-housing-data:/data/db \
                 mongo:latest
+            else
+              # Ensure it's connected to the network
+              docker network connect $NETWORK_NAME mongo-housing 2>/dev/null || true
             fi
             
-            if ! docker ps | grep -q "elasticsearch"; then
+            # Ensure Elasticsearch is running (internal only)
+            if ! docker ps --format '{{.Names}}' | grep -q "^elasticsearch-housing$"; then
               echo "Starting Elasticsearch..."
+              docker rm elasticsearch-housing 2>/dev/null || true
               docker run -d \
-                --name elasticsearch \
+                --name elasticsearch-housing \
                 --network $NETWORK_NAME \
                 --restart unless-stopped \
-                -p 9200:9200 \
                 -e "discovery.type=single-node" \
                 -e "xpack.security.enabled=false" \
                 -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
-                -v elasticsearch-data:/usr/share/elasticsearch/data \
+                -v elasticsearch-housing-data:/usr/share/elasticsearch/data \
                 docker.elastic.co/elasticsearch/elasticsearch:8.16.1
+            else
+              docker network connect $NETWORK_NAME elasticsearch-housing 2>/dev/null || true
             fi
             
-            if ! docker ps | grep -q "redis"; then
+            # Ensure Redis is running (internal only)
+            if ! docker ps --format '{{.Names}}' | grep -q "^redis-housing$"; then
               echo "Starting Redis..."
+              docker rm redis-housing 2>/dev/null || true
               docker run -d \
-                --name redis \
+                --name redis-housing \
                 --network $NETWORK_NAME \
                 --restart unless-stopped \
-                -p 6379:6379 \
-                -v redis-data:/data \
+                -v redis-housing-data:/data \
                 redis:latest
+            else
+              docker network connect $NETWORK_NAME redis-housing 2>/dev/null || true
             fi
+            
+            # Wait for services to be ready
+            echo "Waiting for services..."
+            sleep 10
             
             # Pull latest image
             echo "Pulling latest image..."
@@ -180,14 +193,14 @@ jobs:
               --network $NETWORK_NAME \
               --restart unless-stopped \
               -p 8080:8080 \
-              -e SPRING_DATA_MONGODB_URI="mongodb://mongo:27017/HousingUtilitiesSystemDB" \
+              -e SPRING_DATA_MONGODB_URI="mongodb://mongo-housing:27017/HousingUtilitiesSystemDB" \
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e OAUTH_GOOGLE_CLIENT_ID="${{ secrets.OAUTH_GOOGLE_CLIENT_ID }}" \
               -e OAUTH_GOOGLE_CLIENT_SECRET="${{ secrets.OAUTH_GOOGLE_CLIENT_SECRET }}" \
               -e SENDGRID_API_KEY="${{ secrets.SENDGRID_API_KEY }}" \
               -e SENDGRID_FROM_EMAIL="${{ secrets.SENDGRID_FROM_EMAIL }}" \
-              -e ELASTICSEARCH_URIS="http://elasticsearch:9200" \
-              -e SPRING_DATA_REDIS_HOST="redis" \
+              -e ELASTICSEARCH_URIS="http://elasticsearch-housing:9200" \
+              -e SPRING_DATA_REDIS_HOST="redis-housing" \
               -e SPRING_PROFILES_ACTIVE="docker" \
               -v /opt/housing-uploads:/app/uploads \
               $IMAGE
