@@ -8,6 +8,7 @@ on:
 env:
   DOCKER_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/housing-utilities-admin
+  CONTAINER_NAME: housing-utilities-admin
 
 jobs:
   # ============================================================================
@@ -103,33 +104,6 @@ jobs:
     environment: production
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_PASSWORD }}" > ~/.ssh/sshpass
-          chmod 600 ~/.ssh/sshpass
-
-      - name: Create deployment directory on server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          script: |
-            mkdir -p /opt/housing-utilities-admin
-
-      - name: Copy docker-compose.prod.yml to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          source: "docker-compose.prod.yml"
-          target: "/opt/housing-utilities-admin/"
-
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -137,44 +111,95 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            cd /opt/housing-utilities-admin
+            set -e
             
-            # Create .env file from GitHub Secrets
-            cat > .env <<EOF
-            # MongoDB
-            MONGO_ADMIN_USER=${{ secrets.MONGO_ADMIN_USER }}
-            MONGO_ADMIN_PASSWORD=${{ secrets.MONGO_ADMIN_PASSWORD }}
-            MONGO_APP_USER=${{ secrets.MONGO_APP_USER }}
-            MONGO_APP_PASSWORD=${{ secrets.MONGO_APP_PASSWORD }}
-            MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}
-            
-            # JWT
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            
-            # OAuth
-            OAUTH_GOOGLE_CLIENT_ID=${{ secrets.OAUTH_GOOGLE_CLIENT_ID }}
-            OAUTH_GOOGLE_CLIENT_SECRET=${{ secrets.OAUTH_GOOGLE_CLIENT_SECRET }}
-            
-            # SendGrid
-            SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
-            SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }}
-            
-            # App
-            APP_PORT=8080
-            EOF
+            # Variables
+            CONTAINER_NAME="housing-utilities-admin"
+            IMAGE="ghcr.io/${{ github.repository_owner }}/housing-utilities-admin:latest"
+            NETWORK_NAME="housing-network"
             
             # Login to GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # Pull latest image and restart
-            docker compose -f docker-compose.prod.yml pull app || true
-            docker compose -f docker-compose.prod.yml up -d
+            # Create network if not exists
+            docker network create $NETWORK_NAME 2>/dev/null || true
+            
+            # Ensure infrastructure services are running
+            if ! docker ps | grep -q "mongo"; then
+              echo "Starting MongoDB..."
+              docker run -d \
+                --name mongo \
+                --network $NETWORK_NAME \
+                --restart unless-stopped \
+                -p 27017:27017 \
+                -v mongo-data:/data/db \
+                mongo:latest
+            fi
+            
+            if ! docker ps | grep -q "elasticsearch"; then
+              echo "Starting Elasticsearch..."
+              docker run -d \
+                --name elasticsearch \
+                --network $NETWORK_NAME \
+                --restart unless-stopped \
+                -p 9200:9200 \
+                -e "discovery.type=single-node" \
+                -e "xpack.security.enabled=false" \
+                -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+                -v elasticsearch-data:/usr/share/elasticsearch/data \
+                docker.elastic.co/elasticsearch/elasticsearch:8.16.1
+            fi
+            
+            if ! docker ps | grep -q "redis"; then
+              echo "Starting Redis..."
+              docker run -d \
+                --name redis \
+                --network $NETWORK_NAME \
+                --restart unless-stopped \
+                -p 6379:6379 \
+                -v redis-data:/data \
+                redis:latest
+            fi
+            
+            # Pull latest image
+            echo "Pulling latest image..."
+            docker pull $IMAGE
+            
+            # Stop and remove old container (redeploy support)
+            echo "Stopping old container..."
+            docker stop $CONTAINER_NAME 2>/dev/null || true
+            docker rm $CONTAINER_NAME 2>/dev/null || true
+            
+            # Create uploads directory
+            mkdir -p /opt/housing-uploads
+            
+            # Run new container
+            echo "Starting new container..."
+            docker run -d \
+              --name $CONTAINER_NAME \
+              --network $NETWORK_NAME \
+              --restart unless-stopped \
+              -p 8080:8080 \
+              -e SPRING_DATA_MONGODB_URI="mongodb://mongo:27017/HousingUtilitiesSystemDB" \
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              -e OAUTH_GOOGLE_CLIENT_ID="${{ secrets.OAUTH_GOOGLE_CLIENT_ID }}" \
+              -e OAUTH_GOOGLE_CLIENT_SECRET="${{ secrets.OAUTH_GOOGLE_CLIENT_SECRET }}" \
+              -e SENDGRID_API_KEY="${{ secrets.SENDGRID_API_KEY }}" \
+              -e SENDGRID_FROM_EMAIL="${{ secrets.SENDGRID_FROM_EMAIL }}" \
+              -e ELASTICSEARCH_URIS="http://elasticsearch:9200" \
+              -e SPRING_DATA_REDIS_HOST="redis" \
+              -e SPRING_PROFILES_ACTIVE="docker" \
+              -v /opt/housing-uploads:/app/uploads \
+              $IMAGE
             
             # Wait for container to start
-            sleep 30
+            echo "Waiting for container to start..."
+            sleep 20
             
             # Cleanup old images
             docker image prune -f
+            
+            echo "✅ Deployment completed!"
 
       - name: Health Check
         uses: appleboy/ssh-action@v1.0.3
@@ -183,17 +208,19 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
+            CONTAINER_NAME="housing-utilities-admin"
+            
             # Check if container is running
-            if docker ps | grep -q housing-utilities-app; then
+            if docker ps | grep -q $CONTAINER_NAME; then
               echo "✅ Container is running"
             else
               echo "❌ Container is not running"
-              docker compose -f /opt/housing-utilities-admin/docker-compose.prod.yml logs --tail 50
+              docker logs $CONTAINER_NAME --tail 100 2>/dev/null || echo "No logs available"
               exit 1
             fi
             
             # Check application health (with retry)
-            for i in {1..5}; do
+            for i in 1 2 3 4 5; do
               if curl -sf http://localhost:8080/admin/login > /dev/null 2>&1; then
                 echo "✅ Application is healthy"
                 exit 0
@@ -203,5 +230,5 @@ jobs:
             done
             
             echo "❌ Application health check failed"
-            docker compose -f /opt/housing-utilities-admin/docker-compose.prod.yml logs app --tail 100
+            docker logs $CONTAINER_NAME --tail 100
             exit 1
