@@ -131,17 +131,11 @@ jobs:
             if [ ! -f $MONGO_KEYFILE ]; then
               openssl rand -base64 756 | sudo tee $MONGO_KEYFILE > /dev/null
               sudo chmod 400 $MONGO_KEYFILE
-              sudo chown 999:999 $MONGO_KEYFILE # MongoDB default user UI:GUID
-            fi
-            
-            # Stop and remove old single mongo if exists
-            if docker ps -a --format '{{.Names}}' | grep -q "^mongo-housing$"; then
-              echo "Removing old single mongo..."
-              docker stop mongo-housing || true
-              docker rm mongo-housing || true
+              sudo chown 999:999 $MONGO_KEYFILE
             fi
             
             # Ensure MongoDB Replicas are running with Authentication
+            # Use single quotes for secrets to avoid shell expansion of special characters like '*'
             for i in 1 2 3; do
               NAME="mongo$i-housing"
               if ! docker ps --format '{{.Names}}' | grep -q "^$NAME$"; then
@@ -151,8 +145,8 @@ jobs:
                   --name $NAME \
                   --network $NETWORK_NAME \
                   --restart unless-stopped \
-                  -e MONGO_INITDB_ROOT_USERNAME="${{ secrets.MONGO_ROOT_USERNAME }}" \
-                  -e MONGO_INITDB_ROOT_PASSWORD="${{ secrets.MONGO_ROOT_PASSWORD }}" \
+                  -e MONGO_INITDB_ROOT_USERNAME='${{ secrets.MONGO_ROOT_USERNAME }}' \
+                  -e MONGO_INITDB_ROOT_PASSWORD='${{ secrets.MONGO_ROOT_PASSWORD }}' \
                   -v mongo-housing-data-$i:/data/db \
                   -v $MONGO_KEYFILE:/opt/mongo/keyfile \
                   mongo:latest mongod --replSet rs0 --keyFile /opt/mongo/keyfile --bind_ip_all
@@ -161,12 +155,11 @@ jobs:
             
             # Initialize Replica Set and Users if needed
             echo "Checking Replica Set status..."
-            # Using --quiet to avoid extra noise
-            RS_OK=$(docker exec mongo1-housing mongosh -u "${{ secrets.MONGO_ROOT_USERNAME }}" -p "${{ secrets.MONGO_ROOT_PASSWORD }}" --quiet --eval "rs.status().ok" 2>/dev/null || echo "0")
+            # Using single quotes for passwords to protect special characters
+            RS_OK=$(docker exec mongo1-housing mongosh -u '${{ secrets.MONGO_ROOT_USERNAME }}' -p '${{ secrets.MONGO_ROOT_PASSWORD }}' --quiet --eval "rs.status().ok" 2>/dev/null || echo "0")
             
             if [ "$RS_OK" != "1" ]; then
               echo "Initializing Replica Set and Root User..."
-              # Localhost exception allows the first command to work without auth if no users exist
               docker exec mongo1-housing mongosh --eval "
                 try {
                   rs.initiate({
@@ -177,49 +170,32 @@ jobs:
                       { _id: 2, host: 'mongo3-housing:27017', priority: 1 }
                     ]
                   });
-                } catch(e) { print('Replica set already initialized or error: ' + e); }
-              "
+                } catch(e) { print('Replica set error: ' + e); }
+              " || true
+              
               echo "Waiting for election..."
               sleep 20
               
-              echo "Re-verifying with auth user creation..."
+              echo "Creating root user..."
               docker exec mongo1-housing mongosh --eval "
                 db.getSiblingDB('admin').createUser({
                   user: '${{ secrets.MONGO_ROOT_USERNAME }}',
                   pwd: '${{ secrets.MONGO_ROOT_PASSWORD }}',
                   roles: [{ role: 'root', db: 'admin' }]
                 })
-              " 2>/dev/null || echo "User might already exist"
+              " 2>/dev/null || echo "User creation step (might already exist)"
             fi
             
-            # Ensure Elasticsearch and Redis are running (internal only)
+            # Ensure Elasticsearch and Redis are running
             if ! docker ps --format '{{.Names}}' | grep -q "^elasticsearch-housing$"; then
-              echo "Starting Elasticsearch..."
-              docker rm elasticsearch-housing 2>/dev/null || true
-              docker run -d \
-                --name elasticsearch-housing \
-                --network $NETWORK_NAME \
-                --restart unless-stopped \
-                -e "discovery.type=single-node" \
-                -e "xpack.security.enabled=false" \
-                -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
-                -v elasticsearch-housing-data:/usr/share/elasticsearch/data \
-                docker.elastic.co/elasticsearch/elasticsearch:8.16.1
+              docker run -d --name elasticsearch-housing --network $NETWORK_NAME --restart unless-stopped -e "discovery.type=single-node" -e "xpack.security.enabled=false" -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" -v elasticsearch-housing-data:/usr/share/elasticsearch/data docker.elastic.co/elasticsearch/elasticsearch:8.16.1
             fi
             
             if ! docker ps --format '{{.Names}}' | grep -q "^redis-housing$"; then
-              echo "Starting Redis..."
-              docker rm redis-housing 2>/dev/null || true
-              docker run -d \
-                --name redis-housing \
-                --network $NETWORK_NAME \
-                --restart unless-stopped \
-                -v redis-housing-data:/data \
-                redis:latest
+              docker run -d --name redis-housing --network $NETWORK_NAME --restart unless-stopped -v redis-housing-data:/data redis:latest
             fi
             
             # Pull latest image
-            echo "Pulling latest image..."
             docker pull $IMAGE
             
             # Stop and remove old container
@@ -230,20 +206,22 @@ jobs:
             mkdir -p /opt/housing-uploads
             
             # Run new container with Auth Connection String
-            echo "Starting new container with Replica Set and Auth..."
+            # CRITICAL: Use single quotes around URI to prevent shell expansion of '*' in password
+            echo "Starting new container..."
             docker run -d \
               --name $CONTAINER_NAME \
               --network $NETWORK_NAME \
               --restart unless-stopped \
               -p 8081:8080 \
-              -e MONGODB_URI="mongodb://${{ secrets.MONGO_ROOT_USERNAME }}:${{ secrets.MONGO_ROOT_PASSWORD }}@mongo1-housing:27017,mongo2-housing:27017,mongo3-housing:27017/HousingUtilitiesSystemDB?replicaSet=rs0&authSource=admin" \
-              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-              -e OAUTH_GOOGLE_CLIENT_ID="${{ secrets.OAUTH_GOOGLE_CLIENT_ID }}" \
-              -e OAUTH_GOOGLE_CLIENT_SECRET="${{ secrets.OAUTH_GOOGLE_CLIENT_SECRET }}" \
-              -e SENDGRID_API_KEY="${{ secrets.SENDGRID_API_KEY }}" \
-              -e SENDGRID_FROM_EMAIL="${{ secrets.SENDGRID_FROM_EMAIL }}" \
-              -e MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" \
-              -e MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
+              -e MONGODB_URI='mongodb://${{ secrets.MONGO_ROOT_USERNAME }}:${{ secrets.MONGO_ROOT_PASSWORD }}@mongo1-housing:27017,mongo2-housing:27017,mongo3-housing:27017/HousingUtilitiesSystemDB?replicaSet=rs0&authSource=admin' \
+              -e SPRING_DATA_MONGODB_URI='mongodb://${{ secrets.MONGO_ROOT_USERNAME }}:${{ secrets.MONGO_ROOT_PASSWORD }}@mongo1-housing:27017,mongo2-housing:27017,mongo3-housing:27017/HousingUtilitiesSystemDB?replicaSet=rs0&authSource=admin' \
+              -e JWT_SECRET='${{ secrets.JWT_SECRET }}' \
+              -e OAUTH_GOOGLE_CLIENT_ID='${{ secrets.OAUTH_GOOGLE_CLIENT_ID }}' \
+              -e OAUTH_GOOGLE_CLIENT_SECRET='${{ secrets.OAUTH_GOOGLE_CLIENT_SECRET }}' \
+              -e SENDGRID_API_KEY='${{ secrets.SENDGRID_API_KEY }}' \
+              -e SENDGRID_FROM_EMAIL='${{ secrets.SENDGRID_FROM_EMAIL }}' \
+              -e MAIL_USERNAME='${{ secrets.MAIL_USERNAME }}' \
+              -e MAIL_PASSWORD='${{ secrets.MAIL_PASSWORD }}' \
               -e ELASTICSEARCH_URIS="http://elasticsearch-housing:9200" \
               -e SPRING_DATA_REDIS_HOST="redis-housing" \
               -e SPRING_PROFILES_ACTIVE="docker" \
@@ -260,18 +238,19 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             CONTAINER_NAME="housing-utilities-admin"
-            sleep 20
+            echo "Waiting for container stability..."
+            sleep 30
             if docker ps | grep -q $CONTAINER_NAME; then
               echo "✅ Container is running"
+              if curl -sf http://localhost:8081/admin/login > /dev/null 2>&1; then
+                echo "✅ Application is healthy"
+              else
+                echo "❌ Application health check failed (HTTP)"
+                docker logs $CONTAINER_NAME --tail 200
+                exit 1
+              fi
             else
               echo "❌ Container is not running"
               docker logs $CONTAINER_NAME --tail 200
-              exit 1
-            fi
-            
-            if curl -sf http://localhost:8081/admin/login > /dev/null 2>&1; then
-              echo "✅ Application is healthy"
-            else
-              echo "❌ Application health check failed"
               exit 1
             fi
