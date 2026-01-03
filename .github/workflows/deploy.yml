@@ -105,7 +105,7 @@ jobs:
     
     steps:
       - name: Deploy to Server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.4
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -117,6 +117,7 @@ jobs:
             CONTAINER_NAME="housing-utilities-admin"
             IMAGE="ghcr.io/pozwizd/housing-utilities-admin:latest"
             NETWORK_NAME="housing-network"
+            MONGO_KEYFILE="/opt/mongo/keyfile"
             
             # Login to GitHub Container Registry
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u pozwizd --password-stdin
@@ -124,22 +125,74 @@ jobs:
             # Create network if not exists
             docker network create $NETWORK_NAME 2>/dev/null || true
             
-            # Ensure MongoDB is running (internal only, no port exposure)
-            if ! docker ps --format '{{.Names}}' | grep -q "^mongo-housing$"; then
-              echo "Starting MongoDB..."
-              docker rm mongo-housing 2>/dev/null || true
-              docker run -d \
-                --name mongo-housing \
-                --network $NETWORK_NAME \
-                --restart unless-stopped \
-                -v mongo-housing-data:/data/db \
-                mongo:latest
-            else
-              # Ensure it's connected to the network
-              docker network connect $NETWORK_NAME mongo-housing 2>/dev/null || true
+            # Security: Setup Keyfile for MongoDB Replica Set
+            echo "Setting up MongoDB keyfile..."
+            sudo mkdir -p /opt/mongo
+            if [ ! -f $MONGO_KEYFILE ]; then
+              openssl rand -base64 756 | sudo tee $MONGO_KEYFILE > /dev/null
+              sudo chmod 400 $MONGO_KEYFILE
+              sudo chown 999:999 $MONGO_KEYFILE # MongoDB default user UI:GUID
             fi
             
-            # Ensure Elasticsearch is running (internal only)
+            # Stop and remove old single mongo if exists
+            if docker ps -a --format '{{.Names}}' | grep -q "^mongo-housing$"; then
+              echo "Removing old single mongo..."
+              docker stop mongo-housing || true
+              docker rm mongo-housing || true
+            fi
+            
+            # Ensure MongoDB Replicas are running with Authentication
+            for i in 1 2 3; do
+              NAME="mongo$i-housing"
+              if ! docker ps --format '{{.Names}}' | grep -q "^$NAME$"; then
+                echo "Starting $NAME with auth..."
+                docker rm $NAME 2>/dev/null || true
+                docker run -d \
+                  --name $NAME \
+                  --network $NETWORK_NAME \
+                  --restart unless-stopped \
+                  -e MONGO_INITDB_ROOT_USERNAME="${{ secrets.MONGO_ROOT_USERNAME }}" \
+                  -e MONGO_INITDB_ROOT_PASSWORD="${{ secrets.MONGO_ROOT_PASSWORD }}" \
+                  -v mongo-housing-data-$i:/data/db \
+                  -v $MONGO_KEYFILE:/opt/mongo/keyfile \
+                  mongo:latest mongod --replSet rs0 --keyFile /opt/mongo/keyfile --bind_ip_all
+              fi
+            done
+            
+            # Initialize Replica Set and Users if needed
+            echo "Checking Replica Set status..."
+            # Using --quiet to avoid extra noise
+            RS_OK=$(docker exec mongo1-housing mongosh -u "${{ secrets.MONGO_ROOT_USERNAME }}" -p "${{ secrets.MONGO_ROOT_PASSWORD }}" --quiet --eval "rs.status().ok" 2>/dev/null || echo "0")
+            
+            if [ "$RS_OK" != "1" ]; then
+              echo "Initializing Replica Set and Root User..."
+              # Localhost exception allows the first command to work without auth if no users exist
+              docker exec mongo1-housing mongosh --eval "
+                try {
+                  rs.initiate({
+                    _id: 'rs0',
+                    members: [
+                      { _id: 0, host: 'mongo1-housing:27017', priority: 2 },
+                      { _id: 1, host: 'mongo2-housing:27017', priority: 1 },
+                      { _id: 2, host: 'mongo3-housing:27017', priority: 1 }
+                    ]
+                  });
+                } catch(e) { print('Replica set already initialized or error: ' + e); }
+              "
+              echo "Waiting for election..."
+              sleep 20
+              
+              echo "Re-verifying with auth user creation..."
+              docker exec mongo1-housing mongosh --eval "
+                db.getSiblingDB('admin').createUser({
+                  user: '${{ secrets.MONGO_ROOT_USERNAME }}',
+                  pwd: '${{ secrets.MONGO_ROOT_PASSWORD }}',
+                  roles: [{ role: 'root', db: 'admin' }]
+                })
+              " 2>/dev/null || echo "User might already exist"
+            fi
+            
+            # Ensure Elasticsearch and Redis are running (internal only)
             if ! docker ps --format '{{.Names}}' | grep -q "^elasticsearch-housing$"; then
               echo "Starting Elasticsearch..."
               docker rm elasticsearch-housing 2>/dev/null || true
@@ -152,11 +205,8 @@ jobs:
                 -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
                 -v elasticsearch-housing-data:/usr/share/elasticsearch/data \
                 docker.elastic.co/elasticsearch/elasticsearch:8.16.1
-            else
-              docker network connect $NETWORK_NAME elasticsearch-housing 2>/dev/null || true
             fi
             
-            # Ensure Redis is running (internal only)
             if ! docker ps --format '{{.Names}}' | grep -q "^redis-housing$"; then
               echo "Starting Redis..."
               docker rm redis-housing 2>/dev/null || true
@@ -166,34 +216,27 @@ jobs:
                 --restart unless-stopped \
                 -v redis-housing-data:/data \
                 redis:latest
-            else
-              docker network connect $NETWORK_NAME redis-housing 2>/dev/null || true
             fi
-            
-            # Wait for services to be ready
-            echo "Waiting for services..."
-            sleep 10
             
             # Pull latest image
             echo "Pulling latest image..."
             docker pull $IMAGE
             
-            # Stop and remove old container (redeploy support)
-            echo "Stopping old container..."
+            # Stop and remove old container
             docker stop $CONTAINER_NAME 2>/dev/null || true
             docker rm $CONTAINER_NAME 2>/dev/null || true
             
             # Create uploads directory
             mkdir -p /opt/housing-uploads
             
-            # Run new container
-            echo "Starting new container..."
+            # Run new container with Auth Connection String
+            echo "Starting new container with Replica Set and Auth..."
             docker run -d \
               --name $CONTAINER_NAME \
               --network $NETWORK_NAME \
               --restart unless-stopped \
               -p 8081:8080 \
-              -e SPRING_DATA_MONGODB_URI="mongodb://mongo-housing:27017/HousingUtilitiesSystemDB" \
+              -e MONGODB_URI="mongodb://${{ secrets.MONGO_ROOT_USERNAME }}:${{ secrets.MONGO_ROOT_PASSWORD }}@mongo1-housing:27017,mongo2-housing:27017,mongo3-housing:27017/HousingUtilitiesSystemDB?replicaSet=rs0&authSource=admin" \
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e OAUTH_GOOGLE_CLIENT_ID="${{ secrets.OAUTH_GOOGLE_CLIENT_ID }}" \
               -e OAUTH_GOOGLE_CLIENT_SECRET="${{ secrets.OAUTH_GOOGLE_CLIENT_SECRET }}" \
@@ -207,43 +250,28 @@ jobs:
               -v /opt/housing-uploads:/app/uploads \
               $IMAGE
             
-            # Wait for container to start
-            echo "Waiting for container to start..."
-            sleep 20
-            
-            # Cleanup old images
-            docker image prune -f
-            
             echo "✅ Deployment completed!"
 
       - name: Health Check
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.4
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             CONTAINER_NAME="housing-utilities-admin"
-            
-            # Check if container is running
+            sleep 20
             if docker ps | grep -q $CONTAINER_NAME; then
               echo "✅ Container is running"
             else
               echo "❌ Container is not running"
-              docker logs $CONTAINER_NAME --tail 100 2>/dev/null || echo "No logs available"
+              docker logs $CONTAINER_NAME --tail 200
               exit 1
             fi
             
-            # Check application health (with retry)
-            for i in 1 2 3 4 5; do
-              if curl -sf http://localhost:8081/admin/login > /dev/null 2>&1; then
-                echo "✅ Application is healthy"
-                exit 0
-              fi
-              echo "Attempt $i: Waiting for application..."
-              sleep 10
-            done
-            
-            echo "❌ Application health check failed"
-            docker logs $CONTAINER_NAME --tail 100
-            exit 1
+            if curl -sf http://localhost:8081/admin/login > /dev/null 2>&1; then
+              echo "✅ Application is healthy"
+            else
+              echo "❌ Application health check failed"
+              exit 1
+            fi
